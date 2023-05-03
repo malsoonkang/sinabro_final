@@ -18,7 +18,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "channels",
-
+    "board",
     "accounts",
     "chat",
 ]
@@ -76,14 +76,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ko-KR"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Seoul"
 
 USE_I18N = True
 
 USE_TZ = True
-
+DEFAULT_CHARSET = 'utf-8'
 
 STATIC_URL = "static/"
 
