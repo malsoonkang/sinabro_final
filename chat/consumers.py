@@ -59,7 +59,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     #"room": room,
                     "username": username
                 }
-            )
+            ,ensure_ascii=False)
         )
 
     @sync_to_async
