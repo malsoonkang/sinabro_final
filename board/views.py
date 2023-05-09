@@ -20,11 +20,11 @@ def board_list(request):
 
 def board_write(request):
     if not request.session.get('user'):
-<<<<<<< HEAD
+
         return redirect('/auth/login/')
-=======
+
         return redirect('/accounts/login/')
->>>>>>> github/master
+
 
     if request.method == "POST":
         form = BoardForm(request.POST)
