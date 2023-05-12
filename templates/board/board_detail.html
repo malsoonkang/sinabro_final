@@ -1,9 +1,16 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block content %}
 <div class="row mt-5">
   <div class="col-12">
     <div class="form-group">
+    <div>
+      {% if board.image %}
+        <img src="{{ board.image.url }}" alt="{{ board.title }}" width="200dp">
+      {% endif %}
+
+    </div>
+
       <label for="title">제목</label>
       <input
         type="text"
@@ -16,9 +23,15 @@
       <textarea class="form-control" readonly>{{ board.contents }}</textarea>
     </div>
     <button type="button" class="btn btn-primary" onclick="location.href='/board/list/'">돌아가기</button>
-      {% if is_owner %}
-        <a href="{% url 'board_modify' board.pk %}">수정</a>
-      {% endif %}
+      {% if user.username|stringformat:"s" == board.writer|stringformat:"s" %}
+        <div class="btn-group">
+        <a href="{% url 'board_modify' board.pk %}" class="btn btn-danger">수정</a>
+        <form id="delete-form" method="POST" action="{% url 'board_delete' pk=board.pk %}">
+            {% csrf_token %}
+        </form>
+        <a href="#" class="btn btn-danger" onclick="if(confirm('정말 삭제하시겠습니까?')){event.preventDefault(); document.getElementById('delete-form').submit();}">삭제</a>
+      </div>
+  {% endif %}
   </div>
 </div>
 {% endblock %}

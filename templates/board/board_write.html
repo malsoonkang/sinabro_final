@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 {% block content %}
 <div class="row mt-5">
   <div class="col-12">
-    <form method="POST" action=".">
+    <form method="POST" action="." enctype="multipart/form-data">
       {% csrf_token %}
       {% for field in form %}
       <div class="form-group">
@@ -12,7 +12,7 @@
           class="form-control"
           name="{{field.name}}"
           placeholder="{{ field.label }}"
-        ></textarea>
+        >{{ board.contents }}</textarea>
 
         {% else %}
         <input
@@ -21,6 +21,7 @@
           id="{{ field.id_for_label }}"
           placeholder="{{ field.label }}"
           name="{{ field.name }}"
+          value="{{ board.title }}"
         />
         {% endif %}
       </div>
@@ -28,7 +29,9 @@
       <span style="color: red;">{{ field.errors }}</span>
       {% endif %}
       {% endfor %}
+      <form method="post" class="post-form my-3" enctype="multipart/form-data">
       <button type="submit" class="btn btn-primary">글쓰기</button>
+    </form>
     </form>
   </div>
 </div>
