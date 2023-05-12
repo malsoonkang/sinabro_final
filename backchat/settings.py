@@ -97,7 +97,8 @@ CHANNEL_LAYERS = {
 }
 
 AUTH_USER_MODEL = "accounts.User"
-LOGIN_REDIRECT_URL = "index"
+LOGIN_REDIRECT_URL = "/board/list"
+LOGOUT_REDIRECT_URL = "/board/list"
 LOGIN_URL = "login"
 
 STATIC_URL = "/static/"

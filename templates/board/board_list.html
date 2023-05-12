@@ -43,27 +43,30 @@
 
             <div class="util" >
               {% if user.is_authenticated %}
-              <button type="button" class="btn " style="font-weight: bold; float:right;" onclick="location.href='/auth/logout/'">로그아웃</button>
+              <button type="button" class="btn " style="font-weight: bold; float:right; margin: 23px 15px;" onclick="location.href='/auth/logout/'">로그아웃</button>
+              <button type="button" class="btn "  style="margin: 23px 15px; float:right;    " onclick="location.href='/board/list'">My Page</button>
+              <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/list/'">게시글</button>
+              <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/'">포트폴리오</button>
               {% else %}
               <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/login/'">로그인</button>
               <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/list/'">게시글</button>
               <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/'">포트폴리오</button>
               <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/member/register/'">회원가입</button>
+              {% endif %}
             </div>
           </div>
   </div>
     <section class="search" style="padding: 10px 10px 0 10px">
         <div class="warp">
-            <form>
-            <div style="position:relative; display:inline-block; left: 400px">
-                <input type="search" style="height: 30px; width: 350px; padding: 15px 48px 15px 21px; border-radius: 20px;" name="search-keyword" class="search-keyword" placeholder="검색" autocomplete="off">
-                <input type="submit" style="position: absolute; right: 0; top: 0; width: 35px; height: 35px; border: none; color: transparent; background: transparent url(/media/images/filter.search.png) no-repeat center center; background-size: 24px 24px; " class="submit">
-            </div>
+                <form action="{% url 'search' %}" method="GET">
+            <input type="text" style="margin:auto; display:block; height: 30px; width: 350px; padding: 15px 48px 15px 21px; border-radius: 20px; " name="keyword" class="search-keyword" placeholder="검색" autocomplete="off">
+            <input type="submit" style="position: absolute; right: 468px; top: 145px; width: 35px; height: 35px; border: none; color: transparent; background: transparent url(/media/images/filter.search.png) no-repeat center center; background-size: 24px 24px; " class="submit">
+            </form>
             </form>
         </div>
     </section>
 </div>
-{% endif %}<br>
+<br>
 
                 <!-- Carousel 컨테이너 -->
         <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
@@ -96,7 +99,6 @@
           </a>
         </div>
 
-
         {% for board in boards %}
         <tr onclick="location.href='/board/detail/{{ board.id }}/'">
           <th scope="row">{{ board.id }}</th>
@@ -111,6 +113,7 @@
           <td>{{ board.updated_at }}</td>
         </tr>
         {% endfor %}
+
       </tbody>
     </table>
   </div>

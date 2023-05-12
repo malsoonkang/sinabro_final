@@ -6,7 +6,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/", include('accounts.urls')),
     path('board/', include('board.urls')),
-    path("", include('chat.urls')),
+    path("", include('board.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render, redirect
-
+from django.db.models import Q
 from accounts.models import User
 from .models import Board
 from .forms import BoardForm
@@ -22,7 +22,7 @@ def board_list(request):
 @login_required
 def board_write(request):
     if request.method == "POST":
-        form = BoardForm(request.POST)
+        form = BoardForm(request.POST, request.FILES)
 
         if form.is_valid():
             # form의 모든 validators 호출 유효성 검증 수행
@@ -32,9 +32,7 @@ def board_write(request):
             board = Board()
             board.title = form.cleaned_data['title']
             board.contents = form.cleaned_data['contents']
-            # 검증에 성공한 값들은 사전타입으로 제공 (form.cleaned_data)
-            # 검증에 실패시 form.error 에 오류 정보를 저장
-
+            board.image = form.cleaned_data['image']
             board.writer = member
             board.save()
 
@@ -95,3 +93,19 @@ def board_delete(request, pk):
 
     board.delete()
     return redirect('/board/list/')
+
+def search_view(request):
+    keyword = request.GET.get('keyword')
+
+    results = None
+    if keyword and len(keyword) >= 2:
+        results = Board.objects.filter(
+            Q(title__icontains=keyword) | Q(contents__icontains=keyword)
+        )
+
+    context = {
+        'results': results,
+        'keyword': keyword
+    }
+
+    return render(request, 'board/search.html', context)
