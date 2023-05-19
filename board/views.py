@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
+from hitcount.models import HitCount
+
 from accounts.models import User
 from .models import Board
 from .forms import BoardForm
@@ -11,13 +13,22 @@ from django.core.paginator import Paginator
 def board_list(request):
     all_boards = Board.objects.all().order_by('-id')
     page = int(request.GET.get('p', 1))
-    pagenator = Paginator(all_boards, 2)
+    pagenator = Paginator(all_boards, 10)
     boards = pagenator.get_page(page)
     username = None
     if request.session.get('user'):
         user_id = request.session.get('user')
         username = User.objects.get(pk=user_id)
-    return render(request, 'board/board_list.html', {"boards":boards, 'username': username})
+
+    hit_counts = HitCount.objects.order_by('-hits')[:5]
+    board_ids = [hit_count.object_pk for hit_count in hit_counts]
+    popular_boards = Board.objects.filter(id__in=board_ids)
+
+    return render(request, 'board/board_list.html', {
+        "boards": boards,
+        "popular_boards": popular_boards,
+        'username': username
+    })
 
 @login_required
 def board_write(request):
@@ -48,6 +59,9 @@ def board_detail(request, pk):
         board = Board.objects.get(pk=pk)
     except Board.DoesNotExist:
         raise Http404('게시글을 찾을 수 없습니다.')
+
+    #board.views += 1  # 조회수 증가
+    #board.save()  # 변경된 조회수 저장
 
     username = None
     if request.session.get('user'):
@@ -109,3 +123,23 @@ def search_view(request):
     }
 
     return render(request, 'board/search.html', context)
+
+def board_posts(request):
+    all_boards = Board.objects.all().order_by('-id')
+    page = int(request.GET.get('p', 1))
+    pagenator = Paginator(all_boards, 10)
+    boards = pagenator.get_page(page)
+    username = None
+    if request.session.get('user'):
+        user_id = request.session.get('user')
+        username = User.objects.get(pk=user_id)
+
+    hit_counts = HitCount.objects.order_by('-hits')[:5]
+    board_ids = [hit_count.object_pk for hit_count in hit_counts]
+    popular_boards = Board.objects.filter(id__in=board_ids)
+
+    return render(request, 'board/board_post.html', {
+        "boards": boards,
+        "popular_boards": popular_boards,
+        'username': username
+    })

@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "board",
     "accounts",
     "chat",
+    "hitcount",
 ]
 
 MIDDLEWARE = [

@@ -26,7 +26,35 @@
       integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
       crossorigin="anonymous"
     ></script>
+    <style>
+  .search-container {
+    position: relative;
+  }
 
+  .search-keyword {
+    padding-right: 60px; /* 검색창 오른쪽에 submit 이미지 넣을 공간 확보 */
+  }
+
+  .submit {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background: url(/media/images/filter.search.png) no-repeat center center;
+    background-size: contain;
+    cursor: pointer;
+  }
+
+  /* 반응형 스타일 */
+  @media only screen and (max-width: 768px) {
+    .search-keyword {
+      width: 100%;
+      padding-right: 40px;
+    }
+  }
+</style>
   </head>
   <body>
     <div class="container">

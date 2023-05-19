@@ -8,9 +8,9 @@
       {% if board.image %}
         <img src="{{ board.image.url }}" alt="{{ board.title }}" width="200dp">
       {% endif %}
-
     </div>
 
+    <p>조회수: {{ board.get_hit_count }}</p>
       <label for="title">제목</label>
       <input
         type="text"
@@ -19,6 +19,7 @@
         value="{{ board.title }}"
         readonly
       />
+
       <label for="contents">내용</label>
       <textarea class="form-control" readonly>{{ board.contents }}</textarea>
     </div>
