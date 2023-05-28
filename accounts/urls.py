@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 import accounts.views as user_views
+from accounts import views
 
 urlpatterns = [
     path("register/", user_views.register, name="register"),
@@ -14,4 +15,6 @@ urlpatterns = [
         auth_views.LogoutView.as_view(template_name="accounts/logout.html"),
         name="logout",
     ),
+    path('mypage/', views.mypage, name='mypage'),
+    path('save_emoji/', views.save_emoji, name='save_emoji'),
 ]

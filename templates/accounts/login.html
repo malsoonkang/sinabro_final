@@ -1,19 +1,24 @@
 {% extends 'base.html' %}
 {% block base %}
-    <div class="content-section" id="login">
+    <div class="content-section" id="login" style="text-align: center; margin: 100px;">
+        <div class="main-row" style="margin: 50px 0px 50px">
+            <a class="main-name" style="font-size: 40px; margin: auto; text-decoration:none; font-color: blue; font-family: Gilroy; font-weight: bold; padding: 0;" href="http://127.0.0.1:8000/board/list">
+                Sinabro
+            </a>
+        </div>
         <form method="POST" >
             {% csrf_token %}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">LOG IN</legend>
+                <legend class="border-bottom mb-4" style="font-weight: bold;">로그인</legend>
                 {{ form.as_p }}
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">Log In</button>
+                <button type="submit" style="margin: 0px 0px 15px; font-weight: bold; padding: 5px 100px; background-color: white; color: blue;" >로그인</button>
             </div>
         </form>
         <div class="border-top pt-3">
             <small class="text-muted">
-                Register Here <a class="ml-2" href="{% url 'register' %}">Sign Up</a>
+                회원이 아니신가요? <a class="ml-2" href="{% url 'register' %}">회원가입</a>
             </small>
         </div>
     </div>

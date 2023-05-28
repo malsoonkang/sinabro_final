@@ -15,3 +15,9 @@ class User(AbstractUser):
         db_table = 'user'
         verbose_name = '게시판멤버'
         verbose_name_plural = '게시판멤버'
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    emoji = models.CharField(max_length=255)
+    def __str__(self):
+        return self.user.username

@@ -59,6 +59,23 @@
 </div>
 <br>
 
+<form method="GET" action="." class="search-form">
+  {% csrf_token %}
+  <div class="category-container">
+    <span>카테고리:</span>
+    {% for category in category_list %}
+      <input type="radio" id="category_{{ category.name }}" name="category" value="{{ category.name }}"
+        {% if selected_category == category.name %}checked{% endif %}>
+      <label for="category_{{ category.name }}">{{ category.name }}</label>
+    {% endfor %}
+    <input type="radio" id="category_all" name="category" value="" {% if selected_category is None %}checked{% endif %}>
+    <label for="category_all">전체</label>
+  </div>
+  <button type="submit" class="search-button">검색</button>
+</form>
+
+
+
       <div class="text-center">
           <p style="font-weight: bold;">Hot 게시물</p>
       </div>
@@ -101,6 +118,10 @@
       </a>
     </div>
 
+      <div class="text-center">
+          <p style="font-weight: bold;">공모전 게시물</p>
+      </div>
+
 <div class="row">
   {% for board in boards %}
     <div class="col-md-6">
@@ -117,6 +138,7 @@
             <div class="card-body">
               <h5 class="card-title">{{ board.title }}</h5>
               <p class="card-text">{{ board.writer }}</p>
+              <p>카테고리: {{ board.category }}</p>
               <a href="/board/detail/{{ board.id }}/" class="btn btn-primary">자세히 보기</a>
             </div>
           </div>

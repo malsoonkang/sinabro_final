@@ -10,10 +10,19 @@
         {% if field.name == 'contents' %}
         <textarea
           class="form-control"
-          name="{{field.name}}"
+          name="{{ field.name }}"
           placeholder="{{ field.label }}"
         >{{ board.contents }}</textarea>
-
+        {% elif field.name == 'category' %}
+        <select
+          class="form-control"
+          id="{{ field.id_for_label }}"
+          name="{{ field.name }}"
+        >
+          {% for choice in field.field.choices %}
+          <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+          {% endfor %}
+        </select>
         {% else %}
         <input
           type="{{ field.field.widget.input_type }}"
@@ -29,9 +38,7 @@
       <span style="color: red;">{{ field.errors }}</span>
       {% endif %}
       {% endfor %}
-      <form method="post" class="post-form my-3" enctype="multipart/form-data">
       <button type="submit" class="btn btn-primary">글쓰기</button>
-    </form>
     </form>
   </div>
 </div>

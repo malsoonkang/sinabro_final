@@ -2,26 +2,100 @@
 
 {% block content %}
 <div class="row mt-5">
-  <div class="col-12">
-    <div class="form-group">
-    <div>
-      {% if board.image %}
-        <img src="{{ board.image.url }}" alt="{{ board.title }}" width="200dp">
-      {% endif %}
+  <div class="col-12" style="padding: 0px 0px 0px 80px;">
+    <div class="navbar-row" >
+          <div class="navbar-name" style="display: inline-block;">
+              <a class="navbar-brand" href="/board/list/" style="font-size: 36px; color:blue; font-family: Gilroy; font-weight: bold; padding: 0;">
+                Sinabro
+                </a>
+
+            <div class="util" style="display: inline-block;">
+              {% if user.is_authenticated %}
+              <button type="button" class="btn " style="font-weight: bold; float:right; margin: 23px 15px;" onclick="location.href='/auth/logout/'">로그아웃</button>
+              <button type="button" class="btn "  style="margin: 23px 15px 0px 180px; float:right;" onclick="location.href='/board/list'">My Page</button>
+              <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
+              <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
+              {% else %}
+              <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/login/'">로그인</button>
+              <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
+              <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
+              <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/register/'">회원가입</button>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+  </div>
+    <section class="search" style="padding: 10px 0px 30px 0px">
+        <div class="warp" style="position:relative; display:inline-block; left: 400px">
+            <form action="{% url 'search' %}" method="GET">
+                <input type="text" style="margin:auto; display:block; height: 30px; width: 350px; padding: 15px 48px 15px 21px; border-radius: 20px; " name="keyword" class="search-keyword" placeholder="검색" autocomplete="off">
+                <input type="submit" style="position: absolute; right: 0px; top: 15px; width: 35px; height: 35px; border: none; color: transparent; background: transparent url(/media/images/filter.search.png) no-repeat center center; background-size: 24px 24px; " class="submit">
+            </form>
+        </div>
+    </section>
+</div>
+<div class="form1" style="background-color: #e6e7eb">
+    <div class="form2" style="background-color: white; width: 83%; margin: 0 auto; padding: 30px 40px 10px 40px;">
+    <div class="form-group" style="">
+      <div class="asdf" style="margin: 10px; width: 250px; display: inline-block;">
+        {% if board.image %}
+          <img src="{{ board.image.url }}" alt="{{ board.title }}" width="200dp">
+        {% endif %}
+      </div>
+      <div class="title1" style="display: inline-block;">
+        <input type="text" class="form-control" id="title" value="{{ board.title }}" style="border:0 solid black; font-weight: bold; font-size: 50px; " readonly/>
+      </div>
+      <section class="tab" style="margin: 15px 0px 0px 0px;">
+        <div style="text-align: center; border-bottom: 1.5px solid blue; border-right: 1.5px solid blue; padding: 15px; display: inline-block; float: left;">
+          <a href="/" style="text-decoration: none; color: blue; font-weight: bold; margin: 0px 230px; ">
+            <span style="font-size: 20px; ">소개</span>
+          </a>
+        </div>
+          <div style="text-align: center; border-bottom: 1.5px solid blue; padding: 15px; ">
+            <a href ='/' style="text-decoration: none; color: blue; font-weight: bold;">
+              <span style="font-size: 20px;">작성자와 대화</span>
+          </a>
+        </div>
+      </section>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+{% if request.user.is_authenticated %}
+    {% if request.user in board.likes.all %}
+        <a href="{% url 'like_post' board_id=board.id %}">
+            <i class="fas fa-heart" style="font-size: 34px;"></i>
+        </a>
+    {% else %}
+        <a href="{% url 'like_post' board_id=board.id %}">
+            <i class="far fa-heart" style="font-size: 34px;"></i>
+        </a>
+    {% endif %}
+{% else %}
+    <a href="{% url 'login' %}">로그인</a> 후에 좋아요를 누를 수 있습니다.
+{% endif %}
+
+
+    <div style="border: 1px solid black; border-radius: 10px; padding: 10px; margin: 30px 0px 0px 0px;">
+        <fieldset style="padding: 30px 0px 30px 0px">
+            <legend>모집 기간</legend>
+                <div>
+                    <label for="start_date">모집 시작일:</label>
+                    <span id="start_date">{{ board.recruitment_start_date }}</span>
+                </div>
+                <div>
+                    <label for="end_date">모집 마감일:</label>
+                    <span id="end_date">{{ board.recruitment_end_date }}</span>
+                </div>
+            <br>
+                <p>조회수: {{ board.get_hit_count }}</p>
+                <p>카테고리: {{ board.category }}</p>
+        </fieldset>
     </div>
-
-    <p>조회수: {{ board.get_hit_count }}</p>
-      <label for="title">제목</label>
-      <input
-        type="text"
-        class="form-control"
-        id="title"
-        value="{{ board.title }}"
-        readonly
-      />
-
-      <label for="contents">내용</label>
-      <textarea class="form-control" readonly>{{ board.contents }}</textarea>
+    </div>
+    <div style="margin: 20px 0px 40px 0px;">
+    <div class="contents1" style="margin: 0px 0px 25px;">
+      <textarea class="form-control" id="contents" style="resize: none; outline: none; " readonly cols = "40" rows="20">{{ board.contents }}</textarea>
     </div>
     <button type="button" class="btn btn-primary" onclick="location.href='/board/list/'">돌아가기</button>
       {% if user.username|stringformat:"s" == board.writer|stringformat:"s" %}
@@ -32,7 +106,8 @@
         </form>
         <a href="#" class="btn btn-danger" onclick="if(confirm('정말 삭제하시겠습니까?')){event.preventDefault(); document.getElementById('delete-form').submit();}">삭제</a>
       </div>
-  {% endif %}
-  </div>
+     {% endif %}
+    </div>
+    </div>
 </div>
 {% endblock %}
