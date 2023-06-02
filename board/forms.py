@@ -1,7 +1,8 @@
 from django.contrib.auth.hashers import check_password
 
 from django import forms
-from .models import Board, Category
+from .models import Board, Category, Comment, Portfolio
+from ckeditor.widgets import CKEditorWidget
 
 class BoardForm(forms.Form):
     # 입력받을 값 두개
@@ -14,6 +15,11 @@ class BoardForm(forms.Form):
     image = forms.ImageField(label='이미지 파일',required=False, error_messages={
         'required': '이미지를 첨부해주세요.'
     })
+    pw = forms.CharField(
+        max_length=4,
+        label='비밀번호',
+        error_messages={'required': '4자리 숫자를 입력해주세요.'}
+    )
     category = forms.ModelChoiceField(queryset=Category.objects.all())
     recruitment_start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="모집 시작일")
     recruitment_end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="모집 마감일")
@@ -26,4 +32,19 @@ class BoardForm(forms.Form):
         if start_date and end_date and end_date < start_date:
             self.add_error('recruitment_end_date', '모집 마감일은 모집 시작일보다 빠를 수 없습니다.')
 
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('content',)
 
+class PortfolioPostForm(forms.ModelForm):
+    p_content = forms.CharField(widget=CKEditorWidget())
+    image = forms.ImageField(label='이미지 파일', required=False, error_messages={
+        'required': '이미지를 첨부해주세요.'
+    })
+    def clean(self):
+        cleaned_data = super().clean()
+    class Meta:
+        model = Portfolio
+        fields = ('p_title', 'p_content', 'image')
+        exclude = ['published_date']

@@ -1,20 +1,137 @@
-{% extends 'base.html' %}
+{% extends 'base3.html' %}
 
-{% block base %}
-    <h2>{{ name }}</h2>
-    <p>Room Code: {{ slug }}</p>
-    <div hx-ws="connect:/chat/{{ slug }}/">
-        <form hx-ws="send:submit">
-            <input name="message">
-            <input type="submit">
-        </form>  
-     </div>
-    <!--
-        {# <div hx-ext="ws" ws-connect="/chat/{{ slug }}/"> #}
+{% block title %}{{ room.name }} | {% endblock %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-12" style="padding: 0px 0px 0px 80px;">
+        <div class="navbar-row" >
+              <div class="navbar-name" style="display: inline-block;">
+                  <a class="navbar-brand" href="/board/list/" style="font-size: 36px; color:blue; font-family: Gilroy; font-weight: bold; padding: 0;">
+                    Sinabro
+                    </a>
+
+                <div class="util" style="display: inline-block;">
+                  {% if user.is_authenticated %}
+                  <button type="button" class="btn " style="font-weight: bold; float:right; margin: 23px 15px;" onclick="location.href='/auth/logout/'">로그아웃</button>
+                  <button type="button" class="btn "  style="margin: 23px 15px 0px 180px; float:right;" onclick="location.href='/board/list'">My Page</button>
+                  <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
+                  <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
+                  <button type="button" class="btn "  style="margin: 23px 15px; float:right;    " onclick="location.href='/rooms'">채팅방</button>
+                  {% else %}
+                  <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/login/'">로그인</button>
+                  <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
+                  <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
+                  <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/register/'">회원가입</button>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+      </div>
+    <section class="search" style="padding: 10px 0px 30px 0px">
+        <div class="warp" style="position:relative; display:inline-block; left: 400px">
+            <form action="{% url 'search' %}" method="GET">
+                <input type="text" style="margin:auto; display:block; height: 30px; width: 350px; padding: 15px 48px 15px 21px; border-radius: 20px; " name="keyword" class="search-keyword" placeholder="검색" autocomplete="off">
+                <input type="submit" style="position: absolute; right: 0px; top: 15px; width: 35px; height: 35px; border: none; color: transparent; background: transparent url(/media/images/filter.search.png) no-repeat center center; background-size: 24px 24px; " class="submit">
+            </form>
+        </div>
+    </section>
+</div>
+{% if request.user.is_authenticated %}
+                    <a href="/rooms/" class="text-white hover:text-gray-200">Rooms</a>
+{% endif %}
+<div style="background-color:#e6e7eb;">
+    <div class="p-10 lg:p-20 text-center">
+        <h1 class="text-3xl lg:text-6xl text-white">{{ room.name }}</h1>
     </div>
-        <form ws-send>
-            <input name="message">
+
+    <div class="lg:w-2/4 mx-4 lg:mx-auto p-4 bg-white rounded-xl">
+        <div class="chat-messages space-y-3" id="chat-messages">
+            {% for m in messages %}<b>{{ m.user.username }}</b>: {{ m.content }}<br>{% endfor %}
+        </div>
+    </div>
+
+    <div class="lg:w-2/4 mt-6 mx-4 lg:mx-auto p-4 bg-white rounded-xl">
+        <form method="post" action="." class="flex">
+            <input type="text" name="content" class="flex-1 mr-3" placeholder="Your message..." id="chat-message-input">
+
+            <button
+                class="px-5 py-3 rounded-xl text-white bg-teal-600 hover:bg-teal-700"
+                id="chat-message-submit"
+            >전송</button>
         </form>
-    -->
-     <div id='messages'></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ room.slug|json_script:"json-roomname" }}
+{{ request.user.username|json_script:"json-username" }}
+
+<script>
+    const roomName = JSON.parse(document.getElementById('json-roomname').textContent);
+    const userName = JSON.parse(document.getElementById('json-username').textContent);
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/'
+        + roomName
+        + '/'
+    );
+
+    chatSocket.onclose = function(e) {
+        console.log('onclose')
+    }
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+
+        if (data.message) {
+            document.querySelector('#chat-messages').innerHTML += ('<b>' + data.username + '</b>: ' + data.message + '<br>');
+        }else {
+            alert('The message was empty!')
+        }
+
+        scrollToBottom();
+    };
+
+    document.querySelector('#chat-message-input').focus();
+    document.querySelector('#chat-message-input').onkeyup = function(e) {
+        if (e.keyCode === 13) {
+            document.querySelector('#chat-message-submit').click();
+        }
+    };
+
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+        e.preventDefault()
+
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+
+        console.log({
+            'message': message,
+            'username': userName,
+            'room': roomName
+        })
+         if (message.trim()) {
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'username': userName,
+                'room': roomName
+            }));
+         }
+
+        messageInputDom.value = '';
+
+        return false
+    };
+
+
+    function scrollToBottom() {
+        let objDiv = document.getElementById("chat-messages");
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
+
+    // Add this below the function to trigger the scroll on load.
+</script>
 {% endblock %}

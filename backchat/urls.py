@@ -11,6 +11,8 @@ urlpatterns = [
     path('board/', include('board.urls')),
     path('mypage/', include('mypage.urls')),
     path("", include('accounts.urls')),
+    path('rooms/', include('chat.urls')),
+    path('', include('board.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

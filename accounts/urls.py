@@ -16,5 +16,5 @@ urlpatterns = [
         name="logout",
     ),
     path('mypage/', views.mypage, name='mypage'),
-    path('save_emoji/', views.save_emoji, name='save_emoji'),
+    path('delete_profile_image/', views.delete_profile_image, name='delete_profile_image'),
 ]

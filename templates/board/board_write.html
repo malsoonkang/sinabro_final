@@ -1,45 +1,46 @@
 {% extends "base2.html" %}
 {% block content %}
-<div class="row mt-5">
-  <div class="col-12">
-    <form method="POST" action="." enctype="multipart/form-data">
-      {% csrf_token %}
-      {% for field in form %}
-      <div class="form-group">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {% if field.name == 'contents' %}
-        <textarea
-          class="form-control"
-          name="{{ field.name }}"
-          placeholder="{{ field.label }}"
-        >{{ board.contents }}</textarea>
-        {% elif field.name == 'category' %}
-        <select
-          class="form-control"
-          id="{{ field.id_for_label }}"
-          name="{{ field.name }}"
-        >
-          {% for choice in field.field.choices %}
-          <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-          {% endfor %}
-        </select>
-        {% else %}
-        <input
-          type="{{ field.field.widget.input_type }}"
-          class="form-control"
-          id="{{ field.id_for_label }}"
-          placeholder="{{ field.label }}"
-          name="{{ field.name }}"
-          value="{{ board.title }}"
-        />
+  <div class="form1" style="background-color: #e6e7eb">
+    <div class="form2" style="background-color: white; width: 80%; margin: 0 auto; padding: 30px 40px 10px 40px;">
+      <form method="POST" action="." enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group" style="margin: 30px 0px 0px 0px">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% if field.name == 'contents' %}
+          <textarea
+            class="form-control"
+            name="{{ field.name }}"
+            placeholder="{{ field.label }}"
+          >{{ board.contents }}</textarea>
+          {% elif field.name == 'category' %}
+          <select
+            class="form-control"
+            id="{{ field.id_for_label }}"
+            name="{{ field.name }}"
+          >
+            {% for choice in field.field.choices %}
+            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+            {% endfor %}
+          </select>
+          {% else %}
+          <input
+            type="{{ field.field.widget.input_type }}"
+            class="form-control"
+            id="{{ field.id_for_label }}"
+            placeholder="{{ field.label }}"
+            name="{{ field.name }}"
+            value="{{ board.title }}"
+          />
+          {% endif %}
+        </div>
+        {% if field.errors %}
+        <span style="color: red;">{{ field.errors }}</span>
         {% endif %}
-      </div>
-      {% if field.errors %}
-      <span style="color: red;">{{ field.errors }}</span>
-      {% endif %}
-      {% endfor %}
-      <button type="submit" class="btn btn-primary">글쓰기</button>
-    </form>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">글쓰기</button>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}

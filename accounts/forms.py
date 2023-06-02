@@ -6,9 +6,14 @@ class UserRegisterForm(UserCreationForm):
 
     class Meta:
         model= User
-        fields = ['username', 'password1', 'password2']
+        fields = ['username', 'password1', 'password2',]
+
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
-        model = Profile
-        fields = ('emoji',)
+        model = Profile  # 모델 클래스를 지정해야 합니다
+        fields = ['profile_image']  # 필드 목록을 지정해주세요
+
+
+
+

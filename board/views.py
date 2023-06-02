@@ -5,8 +5,8 @@ from django.db.models import Q
 from hitcount.models import HitCount
 
 from accounts.models import User
-from .models import Board, Category
-from .forms import BoardForm
+from .models import Board, Category, Comment, Portfolio
+from .forms import BoardForm, CommentForm, PortfolioPostForm
 from django.core.paginator import Paginator
 
 
@@ -20,9 +20,7 @@ def board_list(request):
         user_id = request.session.get('user')
         username = User.objects.get(pk=user_id)
 
-    hit_counts = HitCount.objects.order_by('-hits')[:5]
-    board_ids = [hit_count.object_pk for hit_count in hit_counts]
-    popular_boards = Board.objects.filter(id__in=board_ids)
+    popular_boards = Board.objects.order_by('-views')[:5]
 
     return render(request, 'board/board_list.html', {
         "boards": boards,
@@ -48,6 +46,7 @@ def board_write(request):
             board.category = form.cleaned_data['category']
             board.recruitment_start_date = form.cleaned_data['recruitment_start_date']
             board.recruitment_end_date = form.cleaned_data['recruitment_end_date']
+            board.pw = form.cleaned_data['pw']
             board.save()
 
             return redirect('/board/list/')
@@ -57,24 +56,46 @@ def board_write(request):
     return render(request, 'board/board_write.html', {'form': form, 'username': request.session.get('user')})
 
 def board_detail(request, pk):
-    try:
-        board = Board.objects.get(pk=pk)
-    except Board.DoesNotExist:
-        raise Http404('게시글을 찾을 수 없습니다.')
+    board = get_object_or_404(Board, pk=pk)
+    comments = Comment.objects.filter(board=board)
+    comment_edit_id = None
+    comment_edit_form = None
+    form = CommentForm()  # Initialize the form variable
 
-    #board.views += 1  # 조회수 증가
-    #board.save()  # 변경된 조회수 저장
+    if request.method == 'POST':
+        if 'delete_comment' in request.POST:
+            comment_id = request.POST.get('delete_comment')
+            comment = Comment.objects.get(id=comment_id)
+            if comment.author == request.user:
+                comment.delete()
+        elif 'edit_comment' in request.POST:
+            comment_id = request.POST.get('edit_comment')
+            comment = Comment.objects.get(id=comment_id)
+            if comment.author == request.user:
+                comment_edit_id = comment.id
+                comment_edit_form = CommentForm(instance=comment)
+        else:
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.board = board
+                comment.author = request.user
+                comment.save()
+                return redirect('board_detail', pk=pk)
 
-    username = None
-    if request.session.get('user'):
-        user_id = request.session.get('user')
-        username = User.objects.get(pk=user_id)
+    return render(request, 'board/board_detail.html', {'board': board, 'form': form, 'comments': comments, 'comment_edit_id': comment_edit_id, 'comment_edit_form': comment_edit_form})
 
-    is_owner = False
-    if board.writer == username:
-        is_owner = True
 
-    return render(request, 'board/board_detail.html', {'board':board, 'is_owner':is_owner})
+def comment_edit(request, pk, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('board_detail', pk=pk)
+    else:
+        form = CommentForm(instance=comment)
+    return render(request, 'board/board_detail.html', {'form': form, 'comment': comment})
 
 def board_modify(request, pk):
     try:
@@ -141,9 +162,7 @@ def board_posts(request):
         user_id = request.session.get('user')
         username = User.objects.get(pk=user_id)
 
-    hit_counts = HitCount.objects.order_by('-hits')[:5]
-    board_ids = [hit_count.object_pk for hit_count in hit_counts]
-    popular_boards = Board.objects.filter(id__in=board_ids)
+    popular_boards = Board.objects.order_by('-views')[:5]
 
     selected_category = request.GET.get('category')
     if selected_category:
@@ -175,3 +194,63 @@ def like_post(request, board_id):
     else:
         board.likes.add(user)
     return redirect('/board/detail/' + str(board.id), board_id=board_id)
+
+
+def create_portfolio_post(request):
+    if request.method == 'POST':
+        form = PortfolioPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            portfolio = form.save(commit=False)
+            portfolio.writer = request.user
+            image = form.cleaned_data['image']
+            if image:
+                portfolio.image = image
+            form.save()
+            portfolio_list = Portfolio.objects.all()
+            return render(request, 'board/portfolio_list.html', {'portfolios': portfolio_list})
+    else:
+        form = PortfolioPostForm()
+    context = {
+        'form': form
+    }
+    return render(request, 'board/portfolio_write.html', context)
+
+
+def portfolio_list(request):
+    portfolio_list = Portfolio.objects.all()
+    return render(request, 'board/portfolio_list.html', {'portfolios': portfolio_list})
+
+def portfolio_detail(request,portfolio_id):
+    portfolio_detail = Portfolio.objects.filter(id=portfolio_id)
+    return render(request, 'board/portfolio_detail.html', {'portfolio': portfolio_detail})
+
+def edit_portfolio_post(request, portfolio_id):
+    portfolio = get_object_or_404(Portfolio, id=portfolio_id, writer=request.user)
+    if request.method == 'POST':
+        form = PortfolioPostForm(request.POST, request.FILES, instance=portfolio)
+        if form.is_valid():
+            portfolio = form.save(commit=False)
+            portfolio.writer = request.user
+            image = form.cleaned_data['image']
+            if image:
+                portfolio.image = image
+            form.save()
+            return redirect('portfolio_detail', portfolio_id=portfolio.id)
+    else:
+        form = PortfolioPostForm(instance=portfolio)
+    context = {
+        'form': form,
+        'portfolio_id': portfolio_id,
+    }
+    return render(request, 'board/portfolio_detail.html', context)
+
+def delete_portfolio_post(request, portfolio_id):
+    portfolio = get_object_or_404(Portfolio, id=portfolio_id, writer=request.user)
+    if request.method == 'POST':
+        portfolio.delete()
+        return redirect('portfolio_list')
+    context = {
+        'portfolio': portfolio,
+        'portfolio_id': portfolio_id,
+    }
+    return render(request, 'board/portfolio_detail.html', context)

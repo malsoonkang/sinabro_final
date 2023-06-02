@@ -1,158 +1,164 @@
-{% extends "base2.html" %}
-{% block content %}
-<div class="row mt-5">
-  <div class="col-12">
-    <table class="table">
-      <thead class="thead-dark">
-      </thead>
-        <!-- jQuery 라이브러리 추가 -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% extends "base2.html" %} {% block style %}
+<style>
+    #liked-posts-btn,
+    #liked-posts-btn1,
+    #liked-posts-btn3 {
+        color: black;
+        background-color: white;
+        border: none;
+    }
+    #liked-posts-btn:hover,
+    #liked-posts-btn1:hover,
+    #liked-posts-btn3:hover {
+        color: blue;
+    }
+    #liked-posts-btn:active,
+    #liked-posts-btn1:active,
+    #liked-posts-btn3:active {
+        background-color: blue;
+        color: white;
+    }
+    .active {
+        background-color: blue;
+        color: white;
+    }
+</style>
+ {% endblock %} {% block content %}
+<div class="hot_board_posts_all" style="background-color:#e6e7eb">
+   <div class="back_page" style="background-color: white; width: 88%; height: 700px; margin: 0 auto; padding: 30px 40px 10px 40px; position: relative;">
+      <div class="pro1" style="margin: 0; display: flex; flex-direction: row;">
+         <div class="pro2" style="width: 220px; height: 320px; border: 1px solid gray; border-radius: 8px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="margin: 10px; text-align: center;">
+               <div style=" margin-top: 20px;">
+                  {% if user.profile.profile_image %}
+                  <img src="{{ user.profile.profile_image.url }}" width="200">
+                  <div style="margin: 5px 0 5px 0;">
+                  <p style="font-weight: bold; display: inline; font-size: 20px;">
+                     {{ user.username }}
+                  </p>
+                  <p style="display: inline;">
+                     님
+                  </p>
+                  </div>
+                  <button id="edit-profile-button" type="button" style="text-align: center;">프로필 수정</button>
+                  <button id="default-image-button" type="button" style="display: none;">기본 이미지로 돌아가기</button>
+                  <form id="profile-image-form" method="post" enctype="multipart/form-data" style="display: none;">
+                {% csrf_token %}
+                     <input type="file" class="form-control" name="profile_image" id="profile_image">
+                     <button type="submit" name="mypage">프로필 업로드</button>
+                  </form>
+             {% else %}
+                  <img src="/media/profile_pictures/basic_profile.png" width="200">
 
-    <!-- Bootstrap Carousel 라이브러리 추가 -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
-     <script>
-            $(document).ready(function() {
-        // Carousel 자동 슬라이딩 함수
-        function autoSlide() {
-            $('.carousel').carousel('next');
-            setTimeout(autoSlide, 3000);
-        }
-
-        // 함수 실행
-        autoSlide();
-    });
-    </script>
-
-      <tbody>
-      <div class="row mt-5" style="margin:auto; display: block;">
-  <div class="navbar-row" >
-          <div class="navbar-name">
-              <a class="navbar-brand" href="/board/list/" style="font-size: 36px; color:blue; margin: auto; font-family: Gilroy; font-weight: bold; padding: 0;">
-                Sinabro
-                </a>
-
-            <div class="util" >
-              {% if user.is_authenticated %}
-              <button type="button" class="btn " style="font-weight: bold; float:right; margin: 23px 15px;" onclick="location.href='/auth/logout/'">로그아웃</button>
-              <button type="button" class="btn "  style="margin: 23px 15px; float:right;    " onclick="location.href='/board/mypage'">My Page</button>
-              <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
-              <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
-              {% else %}
-              <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/login/'">로그인</button>
-              <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
-              <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
-              <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/register/'">회원가입</button>
-              {% endif %}
-            </div>
-          </div>
-  </div>
-    <section class="search" style="padding: 10px 10px 0 10px">
-        <div class="warp" style="position:relative; display:inline-block; left: 400px">
-            <form action="{% url 'search' %}" method="GET">
-                <input type="text" style="margin:auto; display:block; height: 30px; width: 350px; padding: 15px 48px 15px 21px; border-radius: 20px; " name="keyword" class="search-keyword" placeholder="검색" autocomplete="off">
-                <input type="submit" style="position: absolute; right: 0px; top: 15px; width: 35px; height: 35px; border: none; color: transparent; background: transparent url(/media/images/filter.search.png) no-repeat center center; background-size: 24px 24px; " class="submit">
+                  <p style="font-weight: bold; display: inline; font-size: 20px;">
+                     {{ user.username }}
+                  </p>
+                  <p style="display: inline;">
+                     님
+                  </p>
+                  <button id="edit-profile-button" type="button" style="text-align: center;">프로필 수정비</button>
+                  <button id="default-image-button" type="button" style="display: none;">기본 이미지로 돌아가기</button>
+                  <form id="profile-image-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+               <input type="file" class="form-control" name="profile_image" id="profile_image">
+               <button type="submit" name="mypage">프로필 업로드</button>
             </form>
-        </div>
-    </section>
-</div>
-<br>
-
-<img src="/media/profile_pictures/가로배너.webp" alt="프로필 이미지" style="width: 100%; height: auto; object-fit: cover;">
-<br>
-
-      <h1>마이페이지</h1>
-  <p>사용자 이름: {{ user.username }}</p>
-  <p>가입 날짜: {{ user.created_at }}</p>
-  <p>마지막 수정일: {{ user.updated_at }}</p>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.js"></script>
-
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <textarea id="emoji-textarea" name="message"></textarea>
-    <input type="hidden" id="emoji-value" name="emoji" value="">
-    <button type="submit">프로필 생성</button>
-</form>
-
-<div id="emoji-preview"></div>
-
-<script>
-    $(document).ready(function() {
-        $("#emoji-textarea").emojioneArea({
-            pickerPosition: "bottom", // 이모지 선택기 위치 설정 (top, bottom)
-            events: {
-                keyup: function(editor, event) {
-                    // 텍스트 영역의 내용이 변경될 때마다 이모지 값을 갱신합니다.
-                    var emojiValue = editor.html();
-                    $("#emoji-value").val(emojiValue);
-                    $("#emoji-preview").html(emojiValue);
-                }
-            }
+             {% endif %}
+               </div>
+               <div style="margin-top: 20px;">
+               </div>
+            </div>
+         </div>
+         <div class="like-post" style="flex: 1; margin: 30px 0 30px 100px;">
+            <div style="border-bottom: 1px solid gray; margin-bottom: 30px;">
+               <button id="liked-posts-btn1" style="margin: 10px; background-color: white; border: none; padding: 10px;">프로필</button>
+               <button id="liked-posts-btn" style="margin: 10px; background-color: white; border: none; padding: 10px;">관심있는 게시물 보기</button>
+            </div>
+            <div class="like_page">
+               <div id="liked-posts-container">
+                   {% for board in liked_posts %}
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="card mb-4">
+                           <div class="row no-gutters">
+                              <div class="col-md-4">
+                                  {% if board.image %} <img src="{{ board.image.url }}" class="card-img" alt="{{ board.title }}">
+                                 {% else %} <img src="/static/images/no_image.png" class="card-img" alt="no image">
+                                 {% endif %}
+                              </div>
+                              <div class="col-md-8">
+                                 <div class="card-body">
+                                    <h5 class="card-title">{{ board.title }}</h5>
+                                    <p class="card-text">
+                                       {{ board.writer }}
+                                    </p>
+                                    <p>
+                                       카테고리: {{ board.category }}
+                                    </p>
+                                    <a href="/board/detail/{{ board.id }}/" class="btn btn-primary">자세히 보기</a>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                      {% if forloop.counter|divisibleby:2 and not forloop.last %}
+                  </div>
+                  <div class="row">
+                      {% endif %} {% endfor %}
+                  </div>
+               </div>
+            </div>
+         </div>
+         <script>
+         document.getElementById('edit-profile-button').addEventListener('click', function () {
+        document.getElementById('edit-profile-button').style.display = 'none';
+        document.getElementById('default-image-button').style.display = 'block';
+        document.getElementById('profile-image-form').style.display = 'block';
+    });
+    document.getElementById('default-image-button').addEventListener('click', function () {
+        document.getElementById('edit-profile-button').style.display = 'block';
+        document.getElementById('default-image-button').style.display = 'none';
+        document.getElementById('profile-image-form').style.display = 'none';
+        document.getElementById('profile_image').value = '';
+        document.getElementsByTagName('img')[0].src = "/media/profile_pictures/basic_profile.png";
+    });
+    document.getElementById('profile_image').addEventListener('change', function () {
+        if (this.value) {
+            document.getElementById('edit-profile-button').innerText = '프로필 수정';
+            document.getElementById('default-image-button').style.display = 'none';
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        var btn1 = document.getElementById('liked-posts-btn1');
+        var btn2 = document.getElementById('liked-posts-btn');
+        var container = document.getElementById('liked-posts-container');
+        btn1.style.fontWeight = 'bold';
+        btn1.style.color = 'blue';
+        btn2.style.fontWeight = '';
+        btn2.style.color = '';
+        container.style.display = 'none';
+        btn1.addEventListener('click', function() {
+            btn1.style.fontWeight = 'bold';
+            btn1.style.color = 'blue';
+            btn2.style.fontWeight = '';
+            btn2.style.color = '';
+            container.style.display = 'none';
         });
-
-        // 폼 제출 시 이모지 값을 폼에 추가합니다.
-        $("form").submit(function() {
-            var emojiValue = $("#emoji-value").val();
-            $("<input>").attr({
-                type: "hidden",
-                name: "emoji",
-                value: emojiValue
-            }).appendTo($(this));
+        btn2.addEventListener('click', function() {
+            btn2.style.fontWeight = 'bold';
+            btn2.style.color = 'blue';
+            btn1.style.fontWeight = '';
+            btn1.style.color = '';
+            container.style.display = 'block';
         });
     });
-</script>
-<p>{{ user.profile.emoji }}</p>
-
-     <h2>좋아요한 게시물</h2>
-    <button id="liked-posts-btn">좋아요한 게시물 보기</button>
-
-    <div id="liked-posts-container" style="display: none;">
-        <div class="row">
-            {% for board in liked_posts %}
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="row no-gutters">
-                            <div class="col-md-4">
-                                {% if board.image %}
-                                    <img src="{{ board.image.url }}" class="card-img" alt="{{ board.title }}">
-                                {% else %}
-                                    <img src="/static/images/no_image.png" class="card-img" alt="no image">
-                                {% endif %}
-                            </div>
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ board.title }}</h5>
-                                    <p class="card-text">{{ board.writer }}</p>
-                                    <p>카테고리: {{ board.category }}</p>
-                                    <a href="/board/detail/{{ board.id }}/" class="btn btn-primary">자세히 보기</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% if forloop.counter|divisibleby:2 and not forloop.last %}
-                    </div><div class="row">
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('liked-posts-btn').addEventListener('click', function() {
-            var container = document.getElementById('liked-posts-container');
-            if (container.style.display === 'none') {
-                container.style.display = 'block';
-            } else {
-                container.style.display = 'none';
-            }
-        });
-    </script>
-
-
+         </script>
+      </div>
+   </div>
+</div>
+</div>
+</div>
+</div>
 </tbody>
 </table>
 </div>

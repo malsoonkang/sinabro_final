@@ -1,0 +1,28 @@
+{% extends "base2.html" %}
+{% block content %}
+<br>
+<head>
+
+    {% for info in portfolio %}
+    <title>{{info.p_title}}</title>
+</head>
+<body>
+    <h1 style="text-align: center;"><u>{{info.p_title}}</u></h1>
+    {{info.p_content | safe}}
+    {% endfor %}
+
+    <h1 style="text-align: center;">포트폴리오 수정</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">수정 완료</button>
+    </form>
+
+        <h1 style="text-align: center;">포트폴리오 삭제</h1>
+    <p>포트폴리오를 삭제하시겠습니까?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">삭제</button>
+    </form>
+</body>
+{% endblock %}

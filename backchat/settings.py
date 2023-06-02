@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "chat",
     'mypage',
     "hitcount",
+    'ckeditor',
 ]
 
 MIDDLEWARE = [

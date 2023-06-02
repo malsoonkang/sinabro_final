@@ -3,6 +3,7 @@ from django.db import models
 from hitcount.models import HitCountMixin, HitCount
 from datetime import datetime
 from accounts.models import User
+from ckeditor.fields import RichTextField
 
 
 class Category(models.Model):
@@ -26,6 +27,7 @@ class Board(models.Model, HitCountMixin):
     hit_count_generic = GenericRelation(HitCount, object_id_field='object_pk',
                                         related_query_name='hit_count_generic_relation')
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
+    pw = models.CharField(max_length=4)
 
     def get_hit_count(self):
         return self.hit_count.hits
@@ -37,3 +39,19 @@ class Board(models.Model, HitCountMixin):
         db_table            = 'boards'
         verbose_name        = '게시판'
         verbose_name_plural = '게시판'
+
+class Comment(models.Model):
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    content = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Portfolio(models.Model):
+    p_title = models.CharField(max_length=200)
+    p_content = RichTextField()
+    image = models.ImageField(upload_to="images/", blank=True, null=True)
+    writer = models.ForeignKey('accounts.User', on_delete=models.CASCADE, verbose_name="작성자")
+    publish_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.p_title

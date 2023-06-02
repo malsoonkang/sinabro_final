@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from accounts.forms import UserRegisterForm, UserProfileForm
-from .models import Profile
+from accounts.models import User, Profile
 from board.models import Board
 
 
@@ -28,29 +28,31 @@ def register(request):
 @login_required
 def mypage(request):
     user = request.user
+    profile, created = Profile.objects.get_or_create(user=user)
     if request.method == 'POST':
-        emoji = request.POST.get('emoji', '')  # 폼에서 이모지 값을 가져옴
-        user_profile = Profile.objects.get(user=user)
-        user_profile.emoji = emoji
-        user_profile.save()
+        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            profile.profile_image = form.cleaned_data['profile_image']
+            form.save()
+            return redirect('mypage')
+    else:
+        form = UserProfileForm(instance=profile)
+
     if request.user.is_authenticated:
         liked_posts = Board.objects.filter(likes=request.user)
-        return render(request, 'accounts/mypage_main.html', {'liked_posts': liked_posts})
+        return render(request, 'accounts/mypage_main.html', {'liked_posts': liked_posts, 'user': user, 'form': form})
     else:
+        return render(request, 'accounts/mypage_main.html', {'user': user, 'form': form})
 
-        return render(request, 'accounts/mypage_main.html', {'user': user})
-
-def save_emoji(request):
-    if request.method == 'POST':
-        emoji = request.POST.get('emoji', '')
-        # 이모지 값을 처리하고 저장하는 로직을 추가하세요
-
-        # 성공적으로 저장되었다고 가정하고, 이미지 URL을 반환합니다.
-        image_url = "https://example.com/profile-image.png"  # 저장된 이미지 URL
-
-        return JsonResponse({'success': True, 'image_url': image_url})
-    else:
-        return JsonResponse({'success': False, 'error': 'Invalid request'})
+@login_required
+def delete_profile_image(request):
+    user = request.user
+    profile = user.profile
+    if profile.profile_image:
+        profile.profile_image.delete(save=False)
+        profile.profile_image = None
+        profile.save()
+    return JsonResponse({'message': '프로필 이미지가 기본이미지로 변경되었습니다.'})
 
 
 

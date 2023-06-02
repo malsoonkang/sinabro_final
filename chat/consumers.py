@@ -1,82 +1,63 @@
 import json
-
+from accounts.models import User
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from chat.models import Room, Message
+from .models import Room, Message
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_name = self.scope["url_route"]["kwargs"]["room_slug"]
-        self.room_group_name = "chat_%s" % self.room_name
-        self.user = self.scope["user"]
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = 'chat_%s' % self.room_name
 
         await self.channel_layer.group_add(
-            self.room_group_name, self.channel_name
+            self.room_group_name,
+            self.channel_name
         )
-
-        await self.add_user(self.room_name, self.user)
 
         await self.accept()
 
-    async def disconnect(self, close_code):
-        await self.remove_user(self.room_name, self.user)
+    async def disconnect(self):
         await self.channel_layer.group_discard(
-            self.room_group_name, self.channel_name
+            self.room_group_name,
+            self.channel_name
         )
 
+    # Receive message from WebSocket
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
-        user = self.user
-        username = user.username
-        room = self.room_name
+        data = json.loads(text_data)
+        print(data)
+        message = data['message']
+        username = data['username']
+        room = data['room']
 
-        #await self.save_message(room, user, message)
+        await self.save_message(username, room, message)
 
+        # Send message to room group
         await self.channel_layer.group_send(
-            self.room_group_name, 
+            self.room_group_name,
             {
-                "type": "chat_message",
-                "message": message,
-                #"room": room,
-                "username": username,
+                'type': 'chat_message',
+                'message': message,
+                'username': username
             }
         )
 
+    # Receive message from room group
     async def chat_message(self, event):
-        message = event["message"]
-        #room = event["room"]
-        username = event["username"]
+        message = event['message']
+        username = event['username']
 
-
-        message_html = f"<div hx-swap-oob='beforeend:#messages'><p><b>{username}</b>: {message}</p></div>"
-        await self.send(
-            text_data=json.dumps(
-                {
-                    "message": message_html,
-                    #"room": room,
-                    "username": username
-                }
-            ,ensure_ascii=False)
-        )
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'message': message,
+            'username': username
+        }))
 
     @sync_to_async
-    def save_message(self, room, user, message):
+    def save_message(self, username, room, message):
+        user = User.objects.get(username=username)
         room = Room.objects.get(slug=room)
-        Message.objects.create(room=room, user=user, message=message)
 
-    @sync_to_async
-    def add_user(self, room, user):
-        room = Room.objects.get(slug=room)
-        if user not in room.users.all():
-            room.users.add(user)
-            room.save()
-
-    @sync_to_async
-    def remove_user(self, room, user):
-        room = Room.objects.get(slug=room)
-        if user in room.users.all():
-            room.users.remove(user)
-            room.save()
+        Message.objects.create(user=user, room=room, content=message)
