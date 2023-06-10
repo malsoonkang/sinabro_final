@@ -3,71 +3,60 @@
 {% block title %}Rooms | {% endblock %}
 
 {% block content %}
-<div class="row mt-5">
-    <div class="col-12" style="padding: 0px 0px 0px 80px;">
-        <div class="navbar-row" >
-              <div class="navbar-name" style="display: inline-block;">
-                  <a class="navbar-brand" href="/board/list/" style="font-size: 36px; color:blue; font-family: Gilroy; font-weight: bold; padding: 0;">
-                    Sinabro
-                    </a>
 
-                <div class="util" style="display: inline-block;">
-                  {% if user.is_authenticated %}
-                  <button type="button" class="btn " style="font-weight: bold; float:right; margin: 23px 15px;" onclick="location.href='/auth/logout/'">로그아웃</button>
-                  <button type="button" class="btn "  style="margin: 23px 15px 0px 180px; float:right;" onclick="location.href='/board/list'">My Page</button>
-                  <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
-                  <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
-                  <button type="button" class="btn "  style="margin: 23px 15px; float:right;    " onclick="location.href='/rooms'">채팅방</button>
-                  {% else %}
-                  <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/login/'">로그인</button>
-                  <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
-                  <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
-                  <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/register/'">회원가입</button>
-                  </div>
-                  {% endif %}
-                </div>
-              </div>
-      </div>
-    <section class="search" style="padding: 10px 0px 30px 0px">
-        <div class="warp" style="position:relative; display:inline-block; left: 400px">
-            <form action="{% url 'search' %}" method="GET">
-                <input type="text" style="margin:auto; display:block; height: 30px; width: 350px; padding: 15px 48px 15px 21px; border-radius: 20px; " name="keyword" class="search-keyword" placeholder="검색" autocomplete="off">
-                <input type="submit" style="position: absolute; right: 0px; top: 15px; width: 35px; height: 35px; border: none; color: transparent; background: transparent url(/media/images/filter.search.png) no-repeat center center; background-size: 24px 24px; " class="submit">
-            </form>
-        </div>
-    </section>
-</div>
-<br>
-<div class="p-10 lg:p-20 text-center">
-    <h1 class="text-3xl lg:text-6xl text-black">내가 속한 채팅방</h1>
-</div>
-<div class="w-full flex flex-wrap items-center">
-    {% for room in rooms %}
-        <div class="w-full lg:w-1/4 px-3 py-3">
-            <div class="p-4 bg-white shadow rounded-xl text-center">
-                <h2 class="mb-5 text-2xl font-semibold">{{ room.name }}</h2>
-
-                {% if room.pw %}
-                    <form method="POST" action="{% url 'room' room.slug %}">
-                        {% csrf_token %}
-                        <input type="text" name="pw" placeholder="Enter password" required>
-                        <button type="submit" class="px-5 py-3 block rounded-xl text-white bg-teal-600 hover:bg-teal-700">Join</button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'room' room.slug %}" class="px-5 py-3 block rounded-xl text-white bg-teal-600 hover:bg-teal-700">Join</a>
+<div class="left_display">
+    <div class="text_center">
+        <p>1:1채팅방</p>
+        <div class="w-full flex flex-wrap items-center flex-col">
+            {% for room in rooms %}
+                {% if not room.pw %}
+                    <div class="w-full lg:w-3/4 px-3 py-3">
+                        <div class="p-4 bg-white shadow rounded-xl text-center flex">
+                            <h2 class="mb-5 text-2xl font-semibold" style="margin-right: 20px;">{{ room.name }}</h2>
+                            <a href="{% url 'room' room.slug %}" class="px-5 py-3 block rounded-xl text-white bg-teal-600 hover:bg-teal-700" style="width: 100px; height: 50px; text-align: center; display: flex; justify-content: center; align-items: center;">Join</a>
+                        </div>
+                    </div>
                 {% endif %}
-            </div>
+            {% empty %}
+                {% if forloop.first %}
+                    <p>현재 참가중인 1:1 채팅방이 없습니다.</p>
+                {% endif %}
+            {% endfor %}
         </div>
-    {% endfor %}
+    </div>
 </div>
-
+<div class="right_display">
+    <div class="text_center">
+        <p>팀 채팅방</p>
+        <div class="w-full flex flex-wrap items-center flex-col">
+            {% for room in rooms %}
+                {% if room.pw %}
+                    <div class="w-full lg:w-3/4 px-3 py-3">
+                        <div class="p-4 bg-white shadow rounded-xl text-center flex">
+                            <h2 class="mb-5 text-2xl font-semibold">{{ room.name }}</h2>
+                            <form method="POST" action="{% url 'room' room.slug %}">
+                                {% csrf_token %}
+                                <a href="{% url 'room' room.slug %}" class="px-5 py-3 block rounded-xl text-white bg-teal-600 hover:bg-teal-700" style="width: 100px; height: 50px; text-align: center; display: flex; justify-content: center; align-items: center;">Join</a>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+            {% empty %}
+                {% if forloop.first %}
+                    <p>현재 참가중인 팀 채팅방이 없습니다.</p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+</div>
 {% if error %}
+
 <p class="text-red-500">{{ error }}</p>
 <script>
     setTimeout(function() {
         window.location.href = "{% url 'rooms' %}";
-    }, 3000); // 초 후에 rooms 페이지로 이동
+    }, 3000);
 </script>
 {% endif %}
-
 {% endblock %}

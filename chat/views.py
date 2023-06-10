@@ -5,7 +5,7 @@ from .models import Room, Message
 from django.shortcuts import get_object_or_404
 from board.models import Board
 from .models import one_one_Room
-from accounts.models import User
+from accounts.models import User, Profile
 import random
 
 
@@ -20,19 +20,22 @@ def rooms(request):
 @login_required
 def room(request, slug):
     room = get_object_or_404(Room, slug=slug)
+    users = User.objects.all()
+    profiles = Profile.objects.filter(user__in=users).values('user__username', 'profile_image')
 
     if request.method == 'POST':
         room_pw = request.POST.get('pw')
 
         if room_pw == room.pw or room.pw is None:
             messages = Message.objects.filter(room=room).order_by('-id')[:50][::-1]
-            return render(request, 'chat/room.html', {'room': room, 'messages': messages})
+            return render(request, 'chat/room.html', {'room': room, 'messages': messages, 'profiles': profiles})
         else:
             board = get_object_or_404(Board, chat_room=room)
             return render(request, 'board/board_detail.html', {'board': board, 'room_error': '비밀번호가 올바르지 않습니다.'})
     else:
         messages = Message.objects.filter(room=room).order_by('-id')[:50][::-1]
-        return render(request, 'chat/room.html', {'room': room, 'messages': messages})
+        current_user_profile = Profile.objects.get(user=request.user)
+        return render(request, 'chat/room.html', {'room': room, 'messages': messages, 'profiles': current_user_profile})
 
 
 

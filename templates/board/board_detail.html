@@ -35,16 +35,13 @@
             {% if room_error %}
                 <p style="color: red;">{{ room_error }}</p>
             {% endif %}
-        {% else %}
-            <p>채팅방 이름: {{ board.chat_room.name }}</p>
-            <button type="button" style="border: none; background-color: white; font-size: 20px; font-weight: bold;" onclick="location.href='{% url 'room' board.chat_room.slug %}'">채팅방으로 이동</button>
-        {% endif %}
-
+            {% endif %}
         </div>
         <div style="flex: 1; text-align: center; border-bottom: 1.5px solid blue; padding: 18px; display: inline;">
-            <a href='/' style="text-decoration: none; color: blue; font-weight: bold;">
-              <span style="font-size: 20px;">작성자와 1:1대화</span>
-            </a>
+          <a href="{% url 'create_chat_room' board_id=board.id %}" style="text-decoration: none; color: blue; font-weight: bold;"
+            {% if board.writer == request.user %} onclick="displayMessage(); return false;" {% endif %}>
+            <span style="font-size: 20px;">작성자와 1:1대화</span>
+          </a>
         </div>
     </section>
 
@@ -65,7 +62,7 @@
                     <span id="end_date">{{ board.recruitment_end_date }}</span>
                 </div>
             <br>
-                <p>조회수: {{ board.get_hit_count }}</p>
+                <p>조회수: {{ board.views }}</p>
                 <p>카테고리: {{ board.category }}</p>
         </fieldset>
     </div>
@@ -83,6 +80,11 @@
         </form>
         <a href="#" class="btn btn-danger" onclick="if(confirm('정말 삭제하시겠습니까?')){event.preventDefault(); document.getElementById('delete-form').submit();}">삭제</a>
       </div>
+<button class="kakao-share">
+  <img src="/media/images/kakaotalk_sharing_btn_small.png" alt="카카오톡 공유"/>
+  <span style="display: inline-block; vertical-align: middle; margin-left: 5px;">카카오톡으로 공유하기</span>
+</button>
+
      {% endif %}
     </div>
 <form id="commentForm" method="post" action="{% url 'board_detail' pk=board.pk %}" >
@@ -110,7 +112,13 @@
     <div class="comment">
         <div class="comment-profile">
             <!-- 프로필 이미지 -->
-            <img src="{{ comment.author.profile.profile_image.url }}" alt="{{ comment.author.username }}의 프로필 이미지">
+             {% if comment.author.profile.profile_image and comment.author.profile.profile_image.url %}
+              <img src="{{ comment.author.profile.profile_image.url }}" alt="{{ comment.author.username }}의 프로필 이미지">
+            {% else %}
+              <img src="/media/profile_pictures/basic_profile.png" width="200">
+            {% endif %}
+
+
         </div>
         <div class="comment-content">
             <p style="display: inline;"> 작성자 :</p>
@@ -174,5 +182,70 @@
             form.submit();
         }
     }
+</script>
+<script>
+function displayMessage() {
+    alert("본인의 게시물입니다");
+  }
+</script>
+<script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+  <script>
+    // init 체크
+    if (!Kakao.isInitialized()) {
+      Kakao.init('f50d4da25ea0ca67c282667026edd2dc');
+    }// 기타 JavaScript 코드
+
+    var thumbImg = $('meta[property="og:image"]').attr('content'); //og이미지 주소
+var thumbTitle = $('meta[property="og:title"]').attr('content'); //og타이틀
+var thumbDesc = $('meta[property="og:description"]').attr('content'); //og설명
+var linkUrl = $('meta[property="og:url"]').attr('content'); //url
+
+        var sendKakao = function() {
+      Kakao.Link.sendScrap({
+        requestUrl: 'http://localhost:8000/board/list/board_id', // 페이지 url
+        templateId: 94567, // 메시지템플릿 번호
+        templateArgs: {
+          PROFILE : '프로필 이미지 주소', // 프로필 이미지 주소 ${PROFILE}
+          THUMB: '썸네일 주소', // 썸네일 주소 ${THUMB}
+          TITLE: '제목 텍스트입니다', // 제목 텍스트 ${TITLE}
+          DESC: '설명 텍스트입니다', // 설명 텍스트 ${DESC}
+        },
+      });
+    };
+  </script>
+<script>
+  var kakaoShareBtn = document.querySelector('.kakao-share');
+  kakaoShareBtn.addEventListener('click', function() {
+    shareKakao();
+  });
+
+  function shareKakao() {
+    Kakao.Link.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: 'SINABRO',
+        description: '당신을 공모전에 초대합니다.',
+        imageUrl: 'https://www.google.com/imgres?imgurl=https%3A%2F%2Fimage.idus.com%2Fimage%2Ffiles%2F485553d6f773402cb9d44a9e084a6483.jpg&tbnid=RGifDl3Ykk0V8M&vet=12ahUKEwjn9oCH7Kb_AhWoplYBHXnqBrYQMygdegUIARCKAg..i&imgrefurl=https%3A%2F%2Fwww.idus.com%2Fsinabroleather&docid=MAnDRigfK1nxCM&w=750&h=750&q=%EC%8B%9C%EB%82%98%EB%B8%8C%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80&ved=2ahUKEwjn9oCH7Kb_AhWoplYBHXnqBrYQMygdegUIARCKAg',
+        imageWidth: 1200,
+        imageHeight: 630,
+        link: {
+          mobileWebUrl: 'https://developers.kakao.com',
+          androidExecutionParams: 'test',
+        },
+      },
+      itemContent: {
+        profileText: 'SINABRO',
+        profileImageUrl: 'https://tistory1.daumcdn.net/tistory/373748/attach/af0ef0205e234b4f9f09d7bce27dd237',
+      },
+      buttons: [
+        {
+          title: '블로그 둘러보기',
+          link: {
+            webUrl: 'http://127.0.0.1:8000/board/detail/{{ board.id }}/',
+          },
+        },
+      ],
+    });
+  }
 </script>
 {% endblock %}

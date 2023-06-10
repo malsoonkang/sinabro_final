@@ -3,37 +3,41 @@
 
 <body>
 
-<div class="row">
+<style>
+  .card {
+    margin-top: 50px;
+    margin-bottom: 20px; /* 카드 사이의 간격 조정 */
+    width: 80%; /* 카드의 너비 조정 */
+  }
+</style>
+<div style="text-align: right;">
+    <button type="button"  style="border: none; background-color: white; font-size: 20px; font-weight: bold; color: blue;" onclick="location.href='/portfolio_write/'">>> 포트폴리오 작성</button>
+  </div>
+<div class="row justify-content-center">
   {% for portfolio in portfolios %}
-    <div class="col-md-6">
+    <div class="col-md-4 d-flex justify-content-center">
       <div class="card mb-4">
-        <div class="row no-gutters">
-          <div class="col-md-4">
-            {% if portfolio.image %}
-              <img src="{{ portfolio.image.url }}" class="card-img" alt="{{ portfolio.p_title }}">
-            {% else %}
-              <img src="/static/images/no_image.png" class="card-img" alt="no image">
-            {% endif %}
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title">{{ portfolio.p_title }}</h5>
-              <p class="card-text">{{ portfolio.writer }}</p>
-              <a href="{% url 'portfolio_detail' portfolio_id=portfolio.id %}" class="btn btn-primary">자세히 보기</a>
+        <div class="card-img-container">
+          {% if portfolio.image %}
+            <div class="card-img-wrapper">
+              <img src="{{ portfolio.image.url }}" class="card-img card-img-fixed-height" alt="{{ portfolio.p_title }}">
             </div>
-          </div>
+          {% else %}
+            <img src="/static/images/no_image.png" class="card-img card-img-fixed-height" alt="no image">
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{ portfolio.p_title }}</h5>
+          <p class="card-text">{{ portfolio.writer }}</p>
+          <a href="{% url 'portfolio_detail' portfolio_id=portfolio.id %}" class="btn btn-primary">자세히 보기</a>
         </div>
       </div>
     </div>
-    {% if forloop.counter|divisibleby:2 and not forloop.last %}
+    {% if forloop.counter|divisibleby:3 and not forloop.last %}
       </div><div class="row">
     {% endif %}
   {% endfor %}
 </div>
-<div class="row mt-2">
-      <div class="col-12">
-        <button type="button" class="btn btn-info btn-lg" onclick="location.href='/portfolio_write/'">포트폴리오 작성하기</button>
-      </div>
-    </div>
+
 </body>
 {% endblock %}

@@ -3,13 +3,15 @@
 
 <br>
 <body>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{form.as_p}}
-        {{form.media}}
-        <input type="submit" value="Submit">
-    </form>
-
+    <div class="form1">
+        <div class="back1" style="background-color: white; width: 83%; margin: 0 auto; padding: 30px 40px 10px 40px;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form.as_p}}
+            {{form.media}}
+            <input type="submit" class="btn btn-dark" value="작성완료"  style="background-color: white; border-radius: 8px;">
+        </form>
+        </div>
+    </div>
 </body>
-</html>
 {% endblock %}

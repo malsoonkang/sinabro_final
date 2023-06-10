@@ -19,6 +19,6 @@ urlpatterns = [
     path('portfolio_write/', views.create_portfolio_post, name='create_portfolio_post'),
     path('portfolio_list/', views.portfolio_list, name='portfolio_list'),
     path('portfolio_list/<int:portfolio_id>', views.portfolio_detail, name='portfolio_detail'),
-    path('portfolio_edit/<int:portfolio_id>/', views.edit_portfolio_post, name='edit_portfolio_post'),
+    path('portfolio_update/<int:portfolio_id>/', views.update_portfolio_post, name='update_portfolio_post'),
     path('portfolio_delete/<int:portfolio_id>/', views.delete_portfolio_post, name='delete_portfolio_post'),
 ]

@@ -25,134 +25,252 @@
 </style>
  {% endblock %} {% block content %}
 <div class="hot_board_posts_all" style="background-color:#e6e7eb">
-   <div class="back_page" style="background-color: white; width: 88%; height: 700px; margin: 0 auto; padding: 30px 40px 10px 40px; position: relative;">
+    <div class="back_page" style="background-color: white; width: 88%;  min-height: 650px; height: 100%; margin: 0 auto; padding: 30px 40px 10px 40px; position: relative;">
+
       <div class="pro1" style="margin: 0; display: flex; flex-direction: row;">
-         <div class="pro2" style="width: 220px; height: 320px; border: 1px solid gray; border-radius: 8px; display: flex; flex-direction: column; justify-content: center;">
+         <div class="pro2" style="width: 220px; height: 40%; border: 1px solid gray; border-radius: 8px; display: flex; flex-direction: column; justify-content: center;">
             <div style="margin: 10px; text-align: center;">
                <div style=" margin-top: 20px;">
-                  {% if user.profile.profile_image %}
-                  <img src="{{ user.profile.profile_image.url }}" width="200">
-                  <div style="margin: 5px 0 5px 0;">
-                  <p style="font-weight: bold; display: inline; font-size: 20px;">
-                     {{ user.username }}
-                  </p>
-                  <p style="display: inline;">
-                     님
-                  </p>
-                  </div>
-                  <button id="edit-profile-button" type="button" style="text-align: center;">프로필 수정</button>
-                  <button id="default-image-button" type="button" style="display: none;">기본 이미지로 돌아가기</button>
-                  <form id="profile-image-form" method="post" enctype="multipart/form-data" style="display: none;">
-                {% csrf_token %}
-                     <input type="file" class="form-control" name="profile_image" id="profile_image">
-                     <button type="submit" name="mypage">프로필 업로드</button>
-                  </form>
-             {% else %}
-                  <img src="/media/profile_pictures/basic_profile.png" width="200">
 
-                  <p style="font-weight: bold; display: inline; font-size: 20px;">
+{% if user.profile.profile_image %}
+    <img src="{{ user.profile.profile_image.url }}" width="200">
+{% else %}
+    <img src="/media/profile_pictures/basic_profile.png" width="200">
+{% endif %}
+                   <div style="margin: 7px;">
+                   <p style="font-weight: bold; display: inline; font-size: 20px;">
                      {{ user.username }}
                   </p>
                   <p style="display: inline;">
                      님
                   </p>
-                  <button id="edit-profile-button" type="button" style="text-align: center;">프로필 수정비</button>
-                  <button id="default-image-button" type="button" style="display: none;">기본 이미지로 돌아가기</button>
-                  <form id="profile-image-form" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-               <input type="file" class="form-control" name="profile_image" id="profile_image">
-               <button type="submit" name="mypage">프로필 업로드</button>
-            </form>
-             {% endif %}
-               </div>
-               <div style="margin-top: 20px;">
+                   </div>
+<form id="profile-image-form" method="post" enctype="multipart/form-data" style="display: none;">
+    {% csrf_token %}
+    <input type="file" class="form-control" name="profile_image" id="profile_image">
+    <button type="submit" name="mypage" style="border-radius: 6px; background-color: white; margin-top: 5px;">프로필 업로드</button>
+</form>
+                   <div class="profile2" style="text-align: center;">
+{% if request.user.username == user.username %}
+    <button id="edit-profile-button" type="button"  style="border-radius: 6px; background-color: white; margin-top: 5px;" onclick="toggleEditProfile()">프로필 수정</button>
+{% endif %}
+<button id="delete-profile-button" type="button" style="display: none; border-radius: 6px; background-color: white; margin: 5px 0 20px 32px;" onclick="deleteProfileImage()">기본 프로필 등록</button>
+                   </div>
                </div>
             </div>
          </div>
-         <div class="like-post" style="flex: 1; margin: 30px 0 30px 100px;">
-            <div style="border-bottom: 1px solid gray; margin-bottom: 30px;">
-               <button id="liked-posts-btn1" style="margin: 10px; background-color: white; border: none; padding: 10px;">프로필</button>
-               <button id="liked-posts-btn" style="margin: 10px; background-color: white; border: none; padding: 10px;">관심있는 게시물 보기</button>
-            </div>
-            <div class="like_page">
-               <div id="liked-posts-container">
-                   {% for board in liked_posts %}
-                  <div class="row">
-                     <div class="col-md-6">
-                        <div class="card mb-4">
-                           <div class="row no-gutters">
-                              <div class="col-md-4">
-                                  {% if board.image %} <img src="{{ board.image.url }}" class="card-img" alt="{{ board.title }}">
-                                 {% else %} <img src="/static/images/no_image.png" class="card-img" alt="no image">
-                                 {% endif %}
-                              </div>
-                              <div class="col-md-8">
-                                 <div class="card-body">
-                                    <h5 class="card-title">{{ board.title }}</h5>
-                                    <p class="card-text">
-                                       {{ board.writer }}
-                                    </p>
-                                    <p>
-                                       카테고리: {{ board.category }}
-                                    </p>
-                                    <a href="/board/detail/{{ board.id }}/" class="btn btn-primary">자세히 보기</a>
-                                 </div>
-                              </div>
-                           </div>
+<div class="like-post" style="flex: 1; margin: 30px 0 30px 100px;">
+   <div style="border-bottom: 1px solid gray; margin-bottom: 30px;">
+      <button id="liked-posts-btn1" style="margin: 10px; background-color: white; border: none; padding: 10px;">내가 쓴 게시물</button>
+      <button id="liked-posts-btn" style="margin: 10px; background-color: white; border: none; padding: 10px;">관심있는 게시물 보기</button>
+      <button id="liked-posts-btn3" style="margin: 10px; background-color: white; border: none; padding: 10px;">내가 만든 포트폴리오</button>
+   </div>
+
+      <div id="my-posts-container">
+         <div class="row">
+            {% for my_board in my_board_posts %}
+            <div class="col-md-6">
+               <div class="card mb-4">
+                  <div class="row no-gutters">
+                     <div class="col-md-4">
+                        {% if my_board.image %}
+                        <img src="{{ my_board.image.url }}" class="card-img" alt="{{ my_board.title }}">
+                        {% else %}
+                        <img src="/static/images/no_image.png" class="card-img" alt="no image">
+                        {% endif %}
+                     </div>
+                     <div class="col-md-8">
+                        <div class="card-body">
+                           <h5 class="card-title">{{ my_board.title }}</h5>
+                           <p class="card-text">
+                              {{ my_board.writer }}
+                           </p>
+                           <p>
+                              카테고리: {{ my_board.category }}
+                           </p>
+                            {% if my_board.writer == request.user %}
+                              <p>채팅방 비밀번호: {{ my_board.pw }}</p>
+                            {% endif %}
+                           <a href="/board/detail/{{ my_board.id }}/" class="btn btn-primary">자세히 보기</a>
                         </div>
                      </div>
-                      {% if forloop.counter|divisibleby:2 and not forloop.last %}
-                  </div>
-                  <div class="row">
-                      {% endif %} {% endfor %}
                   </div>
                </div>
             </div>
+            {% if forloop.counter|divisibleby:2 %}
          </div>
-         <script>
-         document.getElementById('edit-profile-button').addEventListener('click', function () {
-        document.getElementById('edit-profile-button').style.display = 'none';
-        document.getElementById('default-image-button').style.display = 'block';
-        document.getElementById('profile-image-form').style.display = 'block';
-    });
-    document.getElementById('default-image-button').addEventListener('click', function () {
-        document.getElementById('edit-profile-button').style.display = 'block';
-        document.getElementById('default-image-button').style.display = 'none';
-        document.getElementById('profile-image-form').style.display = 'none';
-        document.getElementById('profile_image').value = '';
-        document.getElementsByTagName('img')[0].src = "/media/profile_pictures/basic_profile.png";
-    });
-    document.getElementById('profile_image').addEventListener('change', function () {
-        if (this.value) {
-            document.getElementById('edit-profile-button').innerText = '프로필 수정';
-            document.getElementById('default-image-button').style.display = 'none';
+         <div class="row">
+            {% endif %}
+            {% endfor %}
+         </div>
+      </div>
+
+   <div class="like_page">
+      <div id="liked-posts-container">
+         <div class="row">
+            {% for board in liked_posts %}
+            <div class="col-md-6">
+               <div class="card mb-4">
+                  <div class="row no-gutters">
+                     <div class="col-md-4">
+                        {% if board.image %}
+                        <img src="{{ board.image.url }}" class="card-img" alt="{{ board.title }}">
+                        {% else %}
+                        <img src="/static/images/no_image.png" class="card-img" alt="no image">
+                        {% endif %}
+                     </div>
+                     <div class="col-md-8">
+                        <div class="card-body">
+                           <h5 class="card-title">{{ board.title }}</h5>
+                           <p class="card-text">
+                              {{ board.writer }}
+                           </p>
+                           <p>
+                              카테고리: {{ board.category }}
+                           </p>
+                           <a href="/board/detail/{{ board.id }}/" class="btn btn-primary">자세히 보기</a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            {% if forloop.counter|divisibleby:2 %}
+         </div>
+         <div class="row">
+            {% endif %}
+            {% endfor %}
+         </div>
+      </div>
+   </div>
+<style>
+  .card {
+    margin-top: 50px;
+    margin-bottom: 20px; /* 카드 사이의 간격 조정 */
+    width: 80%; /* 카드의 너비 조정 */
+  }
+</style>
+<div id="portfolio-container" style="display: none;">
+     <div class="row justify-content-start">
+            {% for portfolio in portpolio_posts %}
+            <div class="col-md-4 d-flex justify-content-center">
+               <div class="card mb-4">
+                  <div class="card-img-container">
+                     {% if portfolio.image %}
+                     <div class="card-img-wrapper">
+                        <img src="{{ portfolio.image.url }}" class="card-img card-img-fixed-height" alt="{{ portfolio.p_title }}">
+                     </div>
+                     {% else %}
+                     <img src="/static/images/no_image.png" class="card-img card-img-fixed-height" alt="no image">
+                     {% endif %}
+                  </div>
+                  <div class="card-body">
+                     <h5 class="card-title">{{ portfolio.p_title }}</h5>
+                     <p class="card-text">{{ portfolio.writer }}</p>
+                     <a href="{% url 'portfolio_detail' portfolio_id=portfolio.id %}" class="btn btn-primary">자세히 보기</a>
+                  </div>
+               </div>
+            </div>
+            {% if forloop.counter|divisibleby:3 and not forloop.last %}
+            </div>
+            <div class="row justify-content-center">
+            {% endif %}
+            {% endfor %}
+         </div>
+      </div>
+</div>
+
+    <script>
+    function toggleEditProfile() {
+        var editButton = document.getElementById('edit-profile-button');
+        var deleteButton = document.getElementById('delete-profile-button');
+        var form = document.getElementById('profile-image-form');
+
+        if (editButton.innerText === '프로필 수정') {
+            editButton.innerText = '프로필 수정 취소';
+            deleteButton.style.display = 'block';
+            form.style.display = 'block';
+        } else {
+            editButton.innerText = '프로필 수정';
+            deleteButton.style.display = 'none';
+            form.style.display = 'none';
+            form.reset();
         }
-    });
-    document.addEventListener('DOMContentLoaded', function() {
-        var btn1 = document.getElementById('liked-posts-btn1');
-        var btn2 = document.getElementById('liked-posts-btn');
-        var container = document.getElementById('liked-posts-container');
+    }
+
+    function deleteProfileImage() {
+        fetch("{% url 'delete_profile_image' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message); // 삭제 성공 메시지 표시
+            location.reload(); // 페이지 새로고침
+        })
+        .catch(error => {
+            // 삭제 실패에 대한 처리 로직 추가
+        });
+    }
+     document.addEventListener('DOMContentLoaded', function() {
+    var btn1 = document.getElementById('liked-posts-btn1');
+    var btn2 = document.getElementById('liked-posts-btn');
+    var btn3 = document.getElementById('liked-posts-btn3');
+    var myboardContainer = document.getElementById('my-posts-container');
+    var container = document.getElementById('liked-posts-container');
+    var portfolioContainer = document.getElementById('portfolio-container');
+
+
+    btn1.style.fontWeight = 'bold';
+    btn1.style.color = 'blue';
+    btn2.style.fontWeight = '';
+    btn2.style.color = '';
+    btn3.style.fontWeight = '';
+    btn3.style.color = '';
+    container.style.display = 'none';
+    portfolioContainer.style.display = 'none';
+    myboardContainer.style.display = 'none';
+
+    btn1.addEventListener('click', function() {
         btn1.style.fontWeight = 'bold';
         btn1.style.color = 'blue';
         btn2.style.fontWeight = '';
         btn2.style.color = '';
+        btn3.style.fontWeight = '';
+        btn3.style.color = '';
         container.style.display = 'none';
-        btn1.addEventListener('click', function() {
-            btn1.style.fontWeight = 'bold';
-            btn1.style.color = 'blue';
-            btn2.style.fontWeight = '';
-            btn2.style.color = '';
-            container.style.display = 'none';
-        });
-        btn2.addEventListener('click', function() {
-            btn2.style.fontWeight = 'bold';
-            btn2.style.color = 'blue';
-            btn1.style.fontWeight = '';
-            btn1.style.color = '';
-            container.style.display = 'block';
-        });
+        portfolioContainer.style.display = 'none';
+        myboardContainer.style.display = 'block';
     });
-         </script>
+
+    btn2.addEventListener('click', function() {
+        btn2.style.fontWeight = 'bold';
+        btn2.style.color = 'blue';
+        btn1.style.fontWeight = '';
+        btn1.style.color = '';
+        btn3.style.fontWeight = '';
+        btn3.style.color = '';
+        container.style.display = 'block';
+        portfolioContainer.style.display = 'none';
+        myboardContainer.style.display = 'none';
+    });
+
+    btn3.addEventListener('click', function() {
+        btn3.style.fontWeight = 'bold';
+        btn3.style.color = 'blue';
+        btn1.style.fontWeight = '';
+        btn1.style.color = '';
+        btn2.style.fontWeight = '';
+        btn2.style.color = '';
+        container.style.display = 'none'; // Or change it to 'block' if needed
+        portfolioContainer.style.display = 'block';
+        myboardContainer.style.display = 'none';
+    });
+});
+
+
+</script>
       </div>
    </div>
 </div>

@@ -89,6 +89,7 @@
           {% endfor %}
       </div>
     </form>
+
     <script>
       var categoryRadios = document.querySelectorAll('input[name="category"]');
 
@@ -104,6 +105,14 @@
         });
       });
     </script>
+</div>
+
+    <div>
+    <p class="bold-text">당신의 팀을 찾아 보세요.</p>
+
+</div>
+<div style="text-align: right;">
+    <button type="button" style="border: none; background-color: transparent; font-size: 20px; font-weight: bold; color: blue;" onclick="location.href='/board/write/'">>>게시글 작성하러 가기</button>
 </div>
 
 <div class="hot_board_posts_all" style="background-color:#e6e7eb">
@@ -130,7 +139,12 @@
                         <h5 class="card-title">{{ popular_board.title }}</h5>
                         <p class="card-text">{{ popular_board.writer }}</p>
                         <a href="/board/detail/{{ popular_board.id }}/" class="btn btn-dark">자세히 보기</a>
-                        <p>조회수: {{ popular_board.get_hit_count }}</p>
+                        <p style="margin-top:5px;">
+                              <span style="display: inline-block; margin-right: 5px;">
+                                  <img src="/media/images/KakaoTalk_Image_2023-06-06-19-41-01.png" style="width: 30px; height: 17px;" alt="">
+                              </span>
+                              <span>{{ popular_board.views }}</span>
+                          </p>
                       </div>
                     </div>
                   </div>
@@ -156,41 +170,52 @@
           <p style="font-weight: bold; text-align:left; font-size: 20px; ">공모전 게시물</p>
       </div>
 
-    <div class="row" >
-      {% for board in boards %}
-        <div class="col-md-6">
-          <div class="card mb-4">
-            <div class="row no-gutters" style="margin: 10px">
-              <div class="col-md-4">
-                {% if board.image %}
-                  <img src="{{ board.image.url }}" class="card-img" alt="{{ board.title }}">
-                {% else %}
-                  <img src="/static/images/no_image.png" class="card-img" alt="no image">
+
+<style>
+  .card {
+    height: 100%;
+  }
+</style>
+
+<div class="row">
+  {% for board in boards %}
+    <div class="col-md-6">
+      <div class="card mb-4">
+        <div class="row no-gutters" style="margin: 10px">
+          <div class="col-md-4">
+            {% if board.image %}
+              <img src="{{ board.image.url }}" class="card-img" alt="{{ board.title }}">
+            {% else %}
+              <img src="/static/images/no_image.png" class="card-img" alt="이미지 없음">
+            {% endif %}
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title" style="font-weight: bold;">{{ board.title }}</h5>
+              <div class="writer-profile">
+                {% if board.writer.profile.profile_image %}
+                  <img src="{{ board.writer.profile.profile_image.url }}" alt="{{ board.writer.username }}의 프로필 이미지">
                 {% endif %}
+                <a href="{% url 'user_mypage' username=board.writer.username %}" class="btn btn-link" style="color: black; text-decoration: none;">{{ board.writer }}</a>
+
               </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title" style="font-weight: bold;">{{ board.title }}</h5>
-                  <p class="card-text">{{ board.writer }}</p>
-                  <p>{{ board.category }}</p>
-                  <a href="/board/detail/{{ board.id }}/" class="btn btn-primary">자세히 보기</a>
-                </div>
-              </div>
+              <p>{{ board.category }}</p>
+            {% if board.writer == request.user %}
+                  <p>채팅방 비밀번호: {{ board.pw }}</p>
+                {% endif %}
+              <a href="/board/detail/{{ board.id }}/" class="btn btn-primary">자세히 보기</a>
             </div>
           </div>
         </div>
-        {% if forloop.counter|divisibleby:2 and not forloop.last %}
-          </div><div class="row">
-        {% endif %}
-      {% endfor %}
+      </div>
     </div>
+    {% if forloop.counter|divisibleby:2 and not forloop.last %}
+      </div><div class="row">
+    {% endif %}
+  {% endfor %}
+</div>
 
-     <div class="row mt-2" style="margin-bottom: 20px;">
-          <div class="col-12">
-            <button type="button" class="btn btn-info btn-lg" onclick="location.href='/board/write/'">글쓰기</button>
-          </div>
-        </div>
-    </div>
+</div>
 </div>
       </tbody>
     </table>

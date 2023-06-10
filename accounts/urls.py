@@ -15,6 +15,7 @@ urlpatterns = [
         auth_views.LogoutView.as_view(template_name="accounts/logout.html"),
         name="logout",
     ),
-    path('mypage/', views.mypage, name='mypage'),
+    path('mypage/<str:username>/', views.mypage, name='user_mypage'),
+    #path('mypage/', views.mypage, name='mypage'),
     path('delete_profile_image/', views.delete_profile_image, name='delete_profile_image'),
 ]

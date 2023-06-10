@@ -1,6 +1,8 @@
 from django.contrib.auth.hashers import check_password
 
 from django import forms
+from django.core.validators import RegexValidator
+
 from .models import Board, Category, Comment, Portfolio
 from ckeditor.widgets import CKEditorWidget
 
@@ -16,9 +18,11 @@ class BoardForm(forms.Form):
         'required': '이미지를 첨부해주세요.'
     })
     pw = forms.CharField(
+        min_length=4,
         max_length=4,
-        label='비밀번호',
-        error_messages={'required': '4자리 숫자를 입력해주세요.'}
+        label='채팅방 비밀번호 설정 (4자리 숫자)',
+        error_messages={'required': '4자리 숫자를 입력해주세요.'},
+        validators=[RegexValidator(r'^[0-9]{4}$', '숫자만 입력해주세요.')]
     )
     category = forms.ModelChoiceField(queryset=Category.objects.all())
     recruitment_start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="모집 시작일")
@@ -38,8 +42,9 @@ class CommentForm(forms.ModelForm):
         fields = ('content',)
 
 class PortfolioPostForm(forms.ModelForm):
-    p_content = forms.CharField(widget=CKEditorWidget())
-    image = forms.ImageField(label='이미지 파일', required=False, error_messages={
+    p_title = forms.CharField(label='제목')
+    p_content = forms.CharField(widget=CKEditorWidget(),label='')
+    image = forms.ImageField(label='포트폴리오 대표 이미지를 골라주세요.', required=False, error_messages={
         'required': '이미지를 첨부해주세요.'
     })
     def clean(self):

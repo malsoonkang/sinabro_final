@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from accounts.forms import UserRegisterForm, UserProfileForm
 from accounts.models import User, Profile
-from board.models import Board
+from board.models import Board, Portfolio
 
 
 def register(request):
@@ -24,7 +24,7 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, "accounts/register.html", {"form": form})
-
+'''
 @login_required
 def mypage(request):
     user = request.user
@@ -40,9 +40,28 @@ def mypage(request):
 
     if request.user.is_authenticated:
         liked_posts = Board.objects.filter(likes=request.user)
-        return render(request, 'accounts/mypage_main.html', {'liked_posts': liked_posts, 'user': user, 'form': form})
+        portpolio_posts = Portfolio.objects.filter(writer=request.user)
+        return render(request, 'accounts/mypage_main.html', {'liked_posts': liked_posts,'portpolio_posts': portpolio_posts ,'user': user, 'form': form})
     else:
         return render(request, 'accounts/mypage_main.html', {'user': user, 'form': form})
+'''
+@login_required
+def mypage(request, username):
+    user = get_object_or_404(User, username=username)
+    profile, created = Profile.objects.get_or_create(user=user)
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            profile.profile_image = form.cleaned_data['profile_image']
+            form.save()
+            return redirect('user_mypage', username=username)
+    else:
+        form = UserProfileForm(instance=profile)
+
+    liked_posts = Board.objects.filter(likes=user)
+    portpolio_posts = Portfolio.objects.filter(writer=user)
+    my_board_posts = Board.objects.filter(writer=user)
+    return render(request, 'accounts/mypage_main.html', {'liked_posts': liked_posts, 'user': user, 'form': form, 'portpolio_posts': portpolio_posts, 'my_board_posts': my_board_posts})
 
 @login_required
 def delete_profile_image(request):

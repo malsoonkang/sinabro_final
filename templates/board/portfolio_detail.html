@@ -1,28 +1,51 @@
 {% extends "base2.html" %}
+{% block style %}
+    .popol-update{
+    padding: 15px 0 15px 10px;
+    }
+    .popol-del{
+    background-color: white;
+    border-radius: 8px;
+    padding: 5px;
+    }
+{% endblock %}
 {% block content %}
 <br>
 <head>
 
     {% for info in portfolio %}
-    <title>{{info.p_title}}</title>
+    <title>{{info.p_title}} 포트폴리오</title>
 </head>
 <body>
-    <h1 style="text-align: center;"><u>{{info.p_title}}</u></h1>
-    {{info.p_content | safe}}
+<div class="form1">
+
+<h1 style="text-align: center; background-color: white;"><u>{{info.p_title}}</u></h1>
+
+<div style="margin-left: 100px;">
+    {{ info.p_content | safe }}
+</div>
+
+
+
+    <div class="popol-del">
+
+         <div style="display: flex; align-items: center;">
+            <a href="{% url 'update_portfolio_post' portfolio_id=info.id %}" style="text-decoration: none; border: 0.8px solid black; border-radius: 8px; padding: 5px; color: black;">수정</a>
+
+            <!-- 삭제 버튼 -->
+            <form action="{% url 'delete_portfolio_post' portfolio_id=info.id %}" method="post" onsubmit="return confirmDelete();" style="margin-left: 10px;">
+                {% csrf_token %}
+                <input type="submit" class="popol-del" value="삭제">
+            </form>
+    </div>
+    </div>
+    <script>
+        function confirmDelete() {
+            return confirm("정말 삭제하시겠습니까?");
+        }
+    </script>
     {% endfor %}
-
-    <h1 style="text-align: center;">포트폴리오 수정</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">수정 완료</button>
-    </form>
-
-        <h1 style="text-align: center;">포트폴리오 삭제</h1>
-    <p>포트폴리오를 삭제하시겠습니까?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">삭제</button>
-    </form>
+    </div>
+</div>
 </body>
 {% endblock %}

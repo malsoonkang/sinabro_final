@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
@@ -61,6 +62,9 @@ def board_detail(request, pk):
     comment_edit_id = None
     comment_edit_form = None
     form = CommentForm()  # Initialize the form variable
+
+    board.views += 1
+    board.save()
 
     if request.method == 'POST':
         if 'delete_comment' in request.POST:
@@ -139,14 +143,21 @@ def board_delete(request, pk):
 def search_view(request):
     keyword = request.GET.get('keyword')
 
-    results = None
+    board_results = None
     if keyword and len(keyword) >= 2:
-        results = Board.objects.filter(
+        board_results = Board.objects.filter(
             Q(title__icontains=keyword) | Q(contents__icontains=keyword)
         )
 
+    portfolio_results = None
+    if keyword and len(keyword) >= 2:
+        portfolio_results = Portfolio.objects.filter(
+            Q(p_title__icontains=keyword) | Q(p_content__icontains=keyword)
+        )
+
     context = {
-        'results': results,
+        'board_results': board_results,
+        'portfolio_results': portfolio_results,
         'keyword': keyword
     }
 
@@ -158,6 +169,8 @@ def board_posts(request):
     pagenator = Paginator(all_boards, 10)
     boards = pagenator.get_page(page)
     username = None
+
+
     if request.session.get('user'):
         user_id = request.session.get('user')
         username = User.objects.get(pk=user_id)
@@ -206,8 +219,7 @@ def create_portfolio_post(request):
             if image:
                 portfolio.image = image
             form.save()
-            portfolio_list = Portfolio.objects.all()
-            return render(request, 'board/portfolio_list.html', {'portfolios': portfolio_list})
+            return redirect('portfolio_list')  # 리스트 페이지로 리디렉션
     else:
         form = PortfolioPostForm()
     context = {
@@ -224,33 +236,28 @@ def portfolio_detail(request,portfolio_id):
     portfolio_detail = Portfolio.objects.filter(id=portfolio_id)
     return render(request, 'board/portfolio_detail.html', {'portfolio': portfolio_detail})
 
-def edit_portfolio_post(request, portfolio_id):
-    portfolio = get_object_or_404(Portfolio, id=portfolio_id, writer=request.user)
+def update_portfolio_post(request, portfolio_id):
+    portfolio = get_object_or_404(Portfolio, id=portfolio_id)
     if request.method == 'POST':
         form = PortfolioPostForm(request.POST, request.FILES, instance=portfolio)
         if form.is_valid():
-            portfolio = form.save(commit=False)
-            portfolio.writer = request.user
-            image = form.cleaned_data['image']
-            if image:
-                portfolio.image = image
-            form.save()
+            portfolio = form.save()
             return redirect('portfolio_detail', portfolio_id=portfolio.id)
     else:
         form = PortfolioPostForm(instance=portfolio)
     context = {
         'form': form,
-        'portfolio_id': portfolio_id,
+        'portfolio_id': portfolio_id
     }
-    return render(request, 'board/portfolio_detail.html', context)
+    return render(request, 'board/portfolio_write.html', context)
+
 
 def delete_portfolio_post(request, portfolio_id):
-    portfolio = get_object_or_404(Portfolio, id=portfolio_id, writer=request.user)
+    portfolio = get_object_or_404(Portfolio, id=portfolio_id)
     if request.method == 'POST':
         portfolio.delete()
         return redirect('portfolio_list')
     context = {
-        'portfolio': portfolio,
-        'portfolio_id': portfolio_id,
+        'portfolio': portfolio
     }
-    return render(request, 'board/portfolio_detail.html', context)
+    return render(request, 'board/portfolio_list.html', context)

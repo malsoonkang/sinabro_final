@@ -1,72 +1,102 @@
-<!DOCTYPE html>
-{% extends "base2.html" %}
-{% block content %}
-
-<div class="row mt-5" style="margin:auto; display: block;">
-  <div class="navbar-row" >
-          <div class="navbar-name">
-              <a class="navbar-brand" href="/" style="font-size: 40px; color:blue; margin: auto; font-family: Gilroy; font-weight: bold; padding: 0;">
-                Sinabro
-                </a>
-
-              {% if request.session.user %}
-            <div class="util" >
-              <button type="button" class="btn " style="font-weight: bold; float:right;" onclick="location.href='/auth/logout/'">로그아웃</button>
-              {% else %}
-              <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/list/'">게시글</button>
-              <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
-              <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/register/'">회원가입</button>
-              <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/login/'">로그인</button>
+{% extends "base2.html" %} {% block style %} {% endblock %} {% block content %}
+<div class="form3" style="background-color:#e6e7eb;">
+   <div class="all-search" style="display: flex; justify-content: space-between;">
+       {% if board_results %}
+      <div class="team-search" style="background-color: white; width: 44%; margin-left: 80px; padding: 30px 40px 10px 40px; min-height: 700px;">
+         <div class="search-bar">
+            <div style="margin-bottom: 30px; border-bottom: 1.5px solid gray; padding-bottom: 15px;">
+               <div class="search-result" style="font-weight: bold; font-size: 25px; display: inline;">
+                  "{{ keyword }}"
+               </div>
+               <p style="display: inline">
+                  게시글 검색 결과
+               </p>
             </div>
-          </div>
-  </div>
-    <section class="search" style="padding: 10px 10px 0 10px">
-        <div class="warp">
-            <form action="{% url 'search' %}" method="GET">
-            <input type="text" style="margin:auto; display:block; height: 30px; width: 350px; padding: 15px 48px 15px 21px; border-radius: 20px; " name="keyword" class="search-keyword" placeholder="검색" autocomplete="off">
-            <input type="submit" style="position: absolute; right: 468px; top: 145px; width: 35px; height: 35px; border: none; color: transparent; background: transparent url(/media/images/filter.search.png) no-repeat center center; background-size: 24px 24px; " class="submit">
-
-            </form>
-
-            {% if results %}
-            <div class="search-bar">
-                <div class="search-result" style="font-weight: bold; font-size: 25px; margin: 20px 20px;">"{{ keyword }}" 검색 결과</div>
-                <div class="col-12">
-                    <table class="table">
-                    <thead class="thead-dark">
-                        <tr>
-                          <th scope="col">#</th>
-                          <th scope="col">이미지</th>
-                          <th scope="col">제목</th>
-                          <th scope="col">아이디</th>
-                          <th scope="col">작성일</th>
-                          <th scope="col">최종수정일</th>
-                        </tr>
-                      </thead>
-                {% for board in results %}
-                <tr onclick="location.href='/board/detail/{{ board.id }}/'">
-                <th scope="row">{{ board.id }}</th>
-                    {% if board.image %}
-                        <td><img src="{{ board.image.url }}" width="100" alt="{{ board.title }}"></td>
-                    {% else %}
-                        <td><img src="/static/images/no_image.png" width="100" alt="no image"></td>
-                    {% endif %}
-                <td>{{ board.title }}</td>
-                <td>{{ board.writer }}</td>
-                <td>{{ board.created_at }}</td>
-                <td>{{ board.updated_at }}</td>
-                </tr>
-                {% endfor %}
-
-            {% else %}
-                 <p>검색 결과가 없습니다.</p>
-            {% endif %}
-                    </table>
-                </div>
-        </div>
-        </div>
-
-    </section>
+             {% for board in board_results %}
+            <div class="col-md-0">
+               <div class="card mb-4">
+                  <div class="row no-gutters" style="margin: 10px">
+                     <div class="col-md-4">
+                         {% if board.image %} <img src="{{ board.image.url }}" class="card-img" alt="{{ board.title }}">
+                        {% else %} <img src="/static/images/no_image.png" class="card-img" alt="no image">
+                        {% endif %}
+                     </div>
+                     <div class="col-md-8">
+                        <div class="card-body">
+                           <h5 class="card-title" style="font-weight: bold;">{{ board.title }}</h5>
+                           <p class="card-text">
+                              {{ board.writer }}
+                           </p>
+                           <p>
+                              {{ board.category }}
+                           </p>
+                           <a href="/board/detail/{{ board.id }}/" class="btn btn-dark">자세히 보기</a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+             {% endfor %}
+         </div>
+      </div>
+       {% else %}
+      <div class="team-search" style="background-color: white; width: 44%; margin-left: 80px; padding: 30px 40px 10px 40px; min-height: 700px;">
+         <div style="margin-bottom: 30px; border-bottom: 1.5px solid gray; padding-bottom: 15px;">
+            <div class="search-result" style="font-weight: bold; font-size: 25px; display: inline;">
+               "{{ keyword }}"
+            </div>
+            <p style="display: inline">
+               에 대한 게시글 검색 결과가 없습니다.
+            </p>
+         </div>
+      </div>
+       {% endif %} {% if portfolio_results %}
+      <div class="popol-search" style="background-color: white; width: 44%; padding: 30px 40px 10px 40px; margin-right: 80px; min-height: 700px;">
+         <div class="search-bar">
+            <div style="margin-bottom: 30px; border-bottom: 1.5px solid gray; padding-bottom: 15px;">
+               <div class="search-result" style="font-weight: bold; font-size: 25px; display: inline;">
+                  "{{ keyword }}"
+               </div>
+               <p style="display: inline">
+                  포트폴리오 검색 결과
+               </p>
+            </div>
+             {% for board in portfolio_results %}
+            <div class="col-md-0">
+               <div class="card mb-4">
+                  <div class="row no-gutters">
+                     <div class="col-md-4">
+                         {% if board.image %} <img src="{{ board.image.url }}" class="card-img" alt="{{ board.title }}">
+                        {% else %} <img src="/static/images/no_image.png" class="card-img" alt="no image">
+                        {% endif %}
+                     </div>
+                     <div class="col-md-8">
+                        <div class="card-body">
+                           <h5 class="card-title">{{ board.title }}</h5>
+                           <p class="card-text">
+                              {{ board.writer }}
+                           </p>
+                           <a href="{% url 'portfolio_detail' portfolio_id=board.id %}" class="btn btn-dark">자세히 보기</a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+             {% endfor %}
+         </div>
+      </div>
+       {% else %}
+      <div class="popol-search" style="background-color: white; width: 44%; padding: 30px 40px 10px 40px; margin-right: 80px; min-height: 700px;">
+         <div style="margin-bottom: 30px; border-bottom: 1.5px solid gray; padding-bottom: 15px;">
+            <div class="search-result" style="font-weight: bold; font-size: 25px; display: inline;">
+               "{{ keyword }}"
+            </div>
+            <p style="display: inline">
+               에 대한 포트폴리오 검색 결과가 없습니다.
+            </p>
+         </div>
+      </div>
+       {% endif %}
+   </div>
 </div>
-{% endif %}
 {% endblock %}

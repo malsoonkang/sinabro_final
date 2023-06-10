@@ -5,7 +5,6 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{% block title %}{% endblock %}Djangochat</title>
          {% load static %}
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -30,19 +29,162 @@
         ></script>
 
         <style>
-            .messages {
-                height: 400px;
-                overflow-y: auto;
+            .message {
+                display: flex;
+                align-items: flex-start;
             }
+
+            .profile-info {
+                display: flex;
+                align-items: center;
+                margin-right: 10px;
+            }
+
+            .profile-image {
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+
+            .default-profile-image {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background-color: gray;
+                color: white;
+            }
+
+            .username {
+                font-weight: bold;
+                margin-right: 5px;
+            }
+
+            .message-content {
+                margin-top:10px;
+                 background-repeat: no-repeat;
+                background-position: center;
+                background-size: 20px; /* 아이콘의 크기에 맞게 조정하세요 */
+                background-color: yellow; /* 노란색으로 변경하려는 부분입니다 */
+                padding-left: 25px; /* 아이콘이 보이도록 왼쪽 패딩 추가 */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 5px 25px;
+                border-radius: 10px; /* 테두리를 둥글게 설정 */
+                        }
+
+            .search-container {
+                position: relative;
+              }
+
+              .search-keyword {
+                padding-right: 60px; /* 검색창 오른쪽에 submit 이미지 넣을 공간 확보 */
+              }
+
+              .submit {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                right: 10px;
+                width: 24px;
+                height: 24px;
+                background: url(/media/images/filter.search.png) no-repeat center center;
+                background-size: contain;
+                cursor: pointer;
+              }
+
+              .left_display{
+                width:45%;
+                float: left;
+                 box-sizing: border-box;
+                    background: #d5d6ea;
+                    margin-top: 20px;
+                    border: 2px solid black; /* 태두리 설정 */
+                    border-radius: 15px; /* 모서리를 15px로 둥글게 설정 */
+
+                    margin-left: 20px;
+              }
+              .right_display {
+                    width: 45%;
+                    float: right;
+                    box-sizing: border-box;
+                    background: #bec4ed;
+                    margin-top: 20px;
+                    border: 2px solid black; /* 태두리 설정 */
+                    border-radius: 15px; /* 모서리를 15px로 둥글게 설정 */
+                    margin-right: 20px;
+                }
+
+
+              .text_center{
+                text-align: center;
+                font-size: 30px;
+                }
+
         </style>
     </head>
 
-    <body class="container-fluid">
+    <body style="margin-bottom: 0;">
+    <div class="container-fluid" style="padding: 0;">
+      <div class="row mt-5" style="margin:auto; display: block;">
+        <div class="navbar-row" >
+          <div class="navbar-name">
+              <a class="navbar-brand" href="/board/list/" style="font-size: 36px; color:blue; margin: auto; font-family: Gilroy; font-weight: bold; padding: 0;">
+                Sinabro
+                </a>
 
-        {% block content %}
-        {% endblock %}
+            <div class="util" style="display: inline-block;">
+              {% if user.is_authenticated %}
+                <div style="display: inline-block; text-align: center; margin: 0px 0px 30px 300px;">
+                    <button type="button" class="btn "  style=" " onclick="location.href='/board/post/'">게시글</button>
+                    <button type="button" class="btn "  style="margin-left: 50px" onclick="location.href='/board/portfolio_list/'">포트폴리오</button>
+                </div>
+                <div style="display: inline-block; text-align: center; margin: 0px 0px 30px 300px">
+                    <button type="button" class="btn" style="margin: 5px 5px 0 100px; " onclick="location.href='/rooms'">
+                      <img src=data:image/png;base64,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 alt="채팅방" style="width: 30px; height: 30px;">
+                    </button>
+                    <button type="button" class="btn" style="margin: 0px 25px 0px 0px;" onclick="redirectToMypage('{% url 'user_mypage' username=request.user.username %}')">My Page</button>
+                    <button type="button" class="btn " style="font-weight: bold;" onclick="location.href='/auth/logout/'">로그아웃</button>
+                </div>
 
+                    {% else %}
+                <div style="display: inline-block; text-align: center; margin: 0px 0px 30px 300px;">
+                    <button type="button" class="btn "  style=" " onclick="location.href='/board/post/'">게시글</button>
+                    <button type="button" class="btn "  style="margin-left: 50px" onclick="location.href='/board/portfolio_list/'">포트폴리오</button>
+                </div>
+                <div style="display: inline-block; text-align: center; margin: 0px 0px 30px 300px">
+                    <button type="button" class="btn "  style="margin: 0px 25px 0px 100px;" onclick="location.href='/auth/register/">회원가입</button>
+                    <button type="button" class="btn " style="font-weight: bold;" onclick="location.href='/auth/login/'">로그인</button>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+  </div>
+    <section class="search" style="padding: 10px 10px 20px 10px; border-bottom: 2px solid gray; ">
+        <div class="warp" style="position:relative; display:inline-block; left: 400px">
+            <form action="{% url 'search' %}" method="GET">
+                <input type="text" style="margin:auto; display:block; height: 30px; width: 350px; padding: 15px 48px 15px 21px; border-radius: 20px; " name="keyword" class="search-keyword" placeholder="검색" autocomplete="off">
+                <input type="submit" style="position: absolute; right: 0px; top: 15px; width: 35px; height: 35px; border: none; color: transparent; background: transparent url(/media/images/filter.search.png) no-repeat center center; background-size: 24px 24px; " class="submit">
+            </form>
+        </div>
+    </section>
+</div>
+      {% block content %}
+      {% endblock %}
         {% block scripts %}
         {% endblock %}
-    </body>
+    <script>
+        function redirectToMypage(url) {
+          location.href = url;
+        }
+        </script>
+    </div>
+  </body>
 </html>
+
+
+
