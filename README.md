@@ -1,3 +1,5 @@
+# 1학기 캡디 공모전 웹사이트
+
 # Django-HTMX Chat Application
 
 This is a simple backend focused chat application, created with django and htmx. There is 0% trace of javascript in the source code :) 
